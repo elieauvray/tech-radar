@@ -423,6 +423,7 @@ function radar_visualization(config) {
           .data(segmented[quadrant][ring])
           .enter()
             .append("a")
+              .attr("class", "legend-entry")
               .attr("href", function (d, i) {
                  return d.link ? d.link : "#"; // stay on same page if no link was provided
               })

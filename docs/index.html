@@ -11,6 +11,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-filters.js"></script>
 <script src="technology-validation.js"></script>
 
 <link rel="stylesheet" href="radar.css">
@@ -20,6 +21,22 @@
 
 <div class="radar-container">
 <svg id="radar"></svg>
+<div class="radar-filters">
+<div class="radar-filters-controls">
+<div class="radar-filter">
+<label for="filter-type">Type</label>
+<select id="filter-type"></select>
+</div>
+<div class="radar-filter">
+<label for="filter-status">Status</label>
+<select id="filter-status"></select>
+</div>
+</div>
+<div class="radar-filters-summary">
+<p id="filter-summary" aria-live="polite"></p>
+<button type="button" id="filter-reset" class="filter-reset" hidden>Reset</button>
+</div>
+</div>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
 </div>
 
@@ -118,8 +135,13 @@ function render() {
     ],
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
-    on_entry_click: showDetails
+    on_entry_click: function(entry) {
+      // dimmed entries are not clickable
+      if (!TechnologyFilters.entryMatches(entry, currentFilters)) return;
+      showDetails(entry);
+    }
   });
+  applyFilters();
 }
 
 function loadAndRender() {
@@ -135,6 +157,75 @@ function loadAndRender() {
     console.log('Error loading radar data', err);
   });
 }
+
+// ---- Type / Status filters ----
+// Applied on the data already loaded: the radar is never redrawn, so blips
+// keep their positions; non-matching entries are only dimmed.
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterSummary = document.getElementById('filter-summary');
+var filterReset = document.getElementById('filter-reset');
+var currentFilters = TechnologyFilters.parseFilters(window.location.search);
+
+function fillFilterSelect(select, allLabel, options) {
+  var all = document.createElement('option');
+  all.value = '';
+  all.textContent = allLabel;
+  select.appendChild(all);
+  options.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', TechnologyFilters.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', TechnologyFilters.STATUS_OPTIONS);
+
+function syncFilterSelects() {
+  filterType.value = currentFilters.type || '';
+  filterStatus.value = currentFilters.status || '';
+}
+
+function applyFilters() {
+  function dimmed(d) {
+    return !TechnologyFilters.entryMatches(d, currentFilters);
+  }
+  d3.selectAll('#radar .blip').classed('is-dimmed', dimmed);
+  d3.selectAll('#radar .legend-entry')
+    .classed('is-dimmed', dimmed)
+    .attr('tabindex', function(d) { return dimmed(d) ? '-1' : null; })
+    .attr('aria-disabled', function(d) { return dimmed(d) ? 'true' : null; });
+  filterSummary.textContent = configData
+    ? TechnologyFilters.summaryText(
+        TechnologyFilters.countMatching(technologies, currentFilters),
+        technologies.length)
+    : '';
+  filterReset.hidden = !TechnologyFilters.isActive(currentFilters);
+}
+
+function setFilters(filters) {
+  currentFilters = TechnologyFilters.normalizeFilters(filters);
+  syncFilterSelects();
+  var search = TechnologyFilters.toSearch(currentFilters, window.location.search);
+  window.history.replaceState(null, '', window.location.pathname + search + window.location.hash);
+  applyFilters();
+}
+
+function onFilterChange() {
+  setFilters({ type: filterType.value, status: filterStatus.value });
+}
+
+filterType.addEventListener('change', onFilterChange);
+filterStatus.addEventListener('change', onFilterChange);
+filterReset.addEventListener('click', function() {
+  setFilters({ type: null, status: null });
+  filterType.focus();
+});
+
+syncFilterSelects();
+filterReset.hidden = !TechnologyFilters.isActive(currentFilters);
 
 // ---- Add a technology ----
 var addButton = document.getElementById('add-technology');

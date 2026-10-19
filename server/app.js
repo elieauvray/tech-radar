@@ -20,6 +20,13 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
     next();
   });
 
+  // Liveness probe: reports that the process is up and serving requests.
+  // It deliberately does not touch the database.
+  app.get('/healthz', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ status: 'ok' });
+  });
+
   app.get('/api/technologies', async (req, res) => {
     try {
       const technologies = await listTechnologies();

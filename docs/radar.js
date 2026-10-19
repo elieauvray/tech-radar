@@ -44,6 +44,8 @@ function radar_visualization(config) {
   config.title_offset = config.title_offset || { x: -675, y: -420 };
   config.title_logo = config.title_logo || null;  // optional { url, width, height }
   config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
+  var default_title_banner = { width: 975, height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };
+  config.title_banner = ("title_banner" in config) ? (config.title_banner ? Object.assign({}, default_title_banner, config.title_banner) : null) : default_title_banner;  // optional gradient band behind the title, null to disable
   config.footer_offset = config.footer_offset || { x: -155, y: 450 };
   config.legend_column_width = config.legend_column_width || 140
   config.legend_line_height = config.legend_line_height || 10
@@ -296,6 +298,36 @@ function radar_visualization(config) {
       .attr("href", config.repo_url)
       .attr("transform", translate(config.title_offset.x, config.title_offset.y));
 
+    // optional gradient band behind the title text
+    var banner = config.title_banner;
+    var banner_x = config.title_logo ? config.title_logo.width + 10 : 0;
+    var banner_padding = 16;
+    var banner_y = -36;
+    var title_x = banner ? banner_x + banner_padding : banner_x;
+    var title_color = banner ? banner.text_color : null;
+    if (banner) {
+      var gradient_id = `${config.svg_id}-title-gradient`;
+      var gradient = title_link.append("defs")
+        .append("linearGradient")
+        .attr("id", gradient_id)
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+      gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", banner.from);
+      gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", banner.to);
+      title_link.append("rect")
+        .attr("x", banner_x)
+        .attr("y", banner_y)
+        .attr("width", banner.width)
+        .attr("height", banner.height)
+        .style("fill", `url(#${gradient_id})`);
+    }
+
     if (config.title_logo) {
       // logo image, bottom edge aligned slightly below the text baseline
       var logo = title_link.append("image")
@@ -312,25 +344,29 @@ function radar_visualization(config) {
       if (config.title_suffix) {
         title_link.append("text")
           .attr("class", "hover-underline")  // add class for hover effect
-          .attr("x", config.title_logo.width + 10)
+          .attr("x", title_x)
           .text(config.title_suffix)
           .style("font-family", config.font_family)
           .style("font-size", "30")
-          .style("font-weight", "bold");
+          .style("font-weight", "bold")
+          .style("fill", title_color);
       }
     } else {
       title_link.append("text")
         .attr("class", "hover-underline")  // add class for hover effect
+        .attr("x", title_x)
         .text(config.title)
         .style("font-family", config.font_family)
         .style("font-size", "30")
-        .style("font-weight", "bold");
+        .style("font-weight", "bold")
+        .style("fill", title_color);
     }
 
-    // date
+    // date (moved below the banner when it is enabled)
+    var date_dy = banner ? banner_y + banner.height + 19 : 20;
     radar
       .append("text")
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y + 20))
+      .attr("transform", translate(config.title_offset.x, config.title_offset.y + date_dy))
       .text(config.date || "")
       .style("font-family", config.font_family)
       .style("font-size", "14")

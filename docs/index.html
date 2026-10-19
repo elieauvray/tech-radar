@@ -5,7 +5,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <meta name="description" content="Zalando Tech Radar: a tool to visualize technology choices, inspire and support Engineering teams at Zalando to pick the best technologies for new projects">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Zalando Tech Radar</title>
+<title>Société Générale Tech Radar</title>
 <link rel="shortcut icon" href="https://www.zalando.de/favicon.ico">
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -24,7 +24,9 @@ fetch('./config.json').then(function(response) {
 }).then(function(data) {
   radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
-    title: "Zalando Tech Radar",
+    title: "Société Générale Tech Radar",
+    title_logo: { url: "images/societe-generale-logo.svg", width: 198, height: 39 },
+    title_suffix: "Tech Radar",
     date: data.date,
     quadrants: [
       { name: "Languages" },

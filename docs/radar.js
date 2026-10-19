@@ -42,6 +42,8 @@ function radar_visualization(config) {
     { x: 450, y: -310 }
   ]
   config.title_offset = config.title_offset || { x: -675, y: -420 };
+  config.title_logo = config.title_logo || null;  // optional { url, width, height }
+  config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
   config.footer_offset = config.footer_offset || { x: -155, y: 450 };
   config.legend_column_width = config.legend_column_width || 140
   config.legend_line_height = config.legend_line_height || 10
@@ -290,15 +292,40 @@ function radar_visualization(config) {
   // draw title and legend (only in print layout)
   if (config.print_layout) {
     // title
-    radar.append("a")
+    var title_link = radar.append("a")
       .attr("href", config.repo_url)
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y))
-      .append("text")
-      .attr("class", "hover-underline")  // add class for hover effect
-      .text(config.title)
-      .style("font-family", config.font_family)
-      .style("font-size", "30")
-      .style("font-weight", "bold")
+      .attr("transform", translate(config.title_offset.x, config.title_offset.y));
+
+    if (config.title_logo) {
+      // logo image, bottom edge aligned slightly below the text baseline
+      var logo = title_link.append("image")
+        .attr("href", config.title_logo.url)
+        .attr("x", 0)
+        .attr("y", -config.title_logo.height + 3)
+        .attr("width", config.title_logo.width)
+        .attr("height", config.title_logo.height)
+        .attr("role", "img")
+        .attr("aria-label", config.title || "");
+      logo.append("title")
+        .text(config.title || "");
+
+      if (config.title_suffix) {
+        title_link.append("text")
+          .attr("class", "hover-underline")  // add class for hover effect
+          .attr("x", config.title_logo.width + 10)
+          .text(config.title_suffix)
+          .style("font-family", config.font_family)
+          .style("font-size", "30")
+          .style("font-weight", "bold");
+      }
+    } else {
+      title_link.append("text")
+        .attr("class", "hover-underline")  // add class for hover effect
+        .text(config.title)
+        .style("font-family", config.font_family)
+        .style("font-size", "30")
+        .style("font-weight", "bold");
+    }
 
     // date
     radar

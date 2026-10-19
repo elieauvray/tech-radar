@@ -357,8 +357,8 @@
     "trend": "no change"
   },
   {
-    "title": "ZMON",
-    "description": "Open-source monitoring and alerting platform created by Zalando.",
+    "title": "Upsun Cloud Application Platform",
+    "description": "Upsun's cloud application platform for building, running and scaling web applications and their services from Git-driven, reproducible environments.",
     "type": "Infrastructure",
     "status": "ADOPT",
     "trend": "no change"

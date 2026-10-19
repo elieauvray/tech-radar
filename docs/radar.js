@@ -44,8 +44,9 @@ function radar_visualization(config) {
   config.title_offset = config.title_offset || { x: -675, y: -420 };
   config.title_logo = config.title_logo || null;  // optional { url, width, height }
   config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
-  var default_title_banner = { width: 975, height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };
+  var default_title_banner = { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };  // width defaults to reaching the right edge
   config.title_banner = ("title_banner" in config) ? (config.title_banner ? Object.assign({}, default_title_banner, config.title_banner) : null) : default_title_banner;  // optional gradient band behind the title, null to disable
+  config.header_gap = ("header_gap" in config) ? config.header_gap : 40;  // vertical space between the title header and the radar
   config.footer_offset = config.footer_offset || { x: -155, y: 450 };
   config.legend_column_width = config.legend_column_width || 140
   config.legend_line_height = config.legend_line_height || 10
@@ -209,17 +210,19 @@ function radar_visualization(config) {
   config.scale = config.scale || 1;
   var scaled_width = config.width * config.scale;
   var scaled_height = config.height * config.scale;
+  // the header gap only applies to the full (non-zoomed) layout
+  var header_gap = ("zoomed_quadrant" in config) ? 0 : config.header_gap;
 
   var svg = d3.select("svg#" + config.svg_id)
     .style("background-color", config.colors.background)
     .attr("width", scaled_width)
-    .attr("height", scaled_height);
+    .attr("height", (config.height + header_gap) * config.scale);
 
   var radar = svg.append("g");
   if ("zoomed_quadrant" in config) {
     svg.attr("viewBox", viewbox(config.zoomed_quadrant));
   } else {
-    radar.attr("transform", translate(scaled_width / 2, scaled_height / 2).concat(`scale(${config.scale})`));
+    radar.attr("transform", translate(scaled_width / 2, scaled_height / 2 + header_gap * config.scale).concat(`scale(${config.scale})`));
   }
 
   var grid = radar.append("g");
@@ -296,7 +299,7 @@ function radar_visualization(config) {
     // title
     var title_link = radar.append("a")
       .attr("href", config.repo_url)
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y));
+      .attr("transform", translate(config.title_offset.x, config.title_offset.y - header_gap));
 
     // optional gradient band behind the title text
     var banner = config.title_banner;
@@ -306,6 +309,8 @@ function radar_visualization(config) {
     var title_x = banner ? banner_x + banner_padding : banner_x;
     var title_color = banner ? banner.text_color : null;
     if (banner) {
+      // by default the band stretches to the right edge of the svg
+      var banner_width = banner.width || Math.max(0, config.width / 2 - (config.title_offset.x + banner_x));
       var gradient_id = `${config.svg_id}-title-gradient`;
       var gradient = title_link.append("defs")
         .append("linearGradient")
@@ -323,7 +328,7 @@ function radar_visualization(config) {
       title_link.append("rect")
         .attr("x", banner_x)
         .attr("y", banner_y)
-        .attr("width", banner.width)
+        .attr("width", banner_width)
         .attr("height", banner.height)
         .style("fill", `url(#${gradient_id})`);
     }
@@ -366,7 +371,7 @@ function radar_visualization(config) {
     var date_dy = banner ? banner_y + banner.height + 19 : 20;
     radar
       .append("text")
-      .attr("transform", translate(config.title_offset.x, config.title_offset.y + date_dy))
+      .attr("transform", translate(config.title_offset.x, config.title_offset.y - header_gap + date_dy))
       .text(config.date || "")
       .style("font-family", config.font_family)
       .style("font-size", "14")

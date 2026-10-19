@@ -73,6 +73,10 @@
 <dt>Status</dt><dd id="details-status"></dd>
 <dt>Trend</dt><dd id="details-trend"></dd>
 </dl>
+<div class="form-error" id="details-error" role="alert"></div>
+<div class="modal-actions">
+<button type="button" id="details-delete" class="danger-btn">Delete</button>
+</div>
 </div>
 </div>
 
@@ -80,6 +84,9 @@
 var FIELDS = ['title', 'description', 'type', 'status', 'trend'];
 var technologies = [];
 var configData = null;
+// true after a delete until the renumbered list has been reloaded: until
+// then the drawn numbers may point at a different technology on the server
+var listStale = false;
 
 function fetchJson(url) {
   return fetch(url).then(function(response) {
@@ -122,6 +129,7 @@ function loadAndRender() {
   ]).then(function(results) {
     technologies = results[0];
     configData = results[1];
+    listStale = false;
     render();
   }).catch(function(err) {
     console.log('Error loading radar data', err);
@@ -284,6 +292,12 @@ addForm.addEventListener('submit', function(event) {
 var detailsOverlay = document.getElementById('details-overlay');
 var detailsClose = document.getElementById('details-close');
 var detailsOpener = null;
+var detailsDelete = document.getElementById('details-delete');
+var detailsError = document.getElementById('details-error');
+var currentDetailsRow = null;
+// a delete in flight keeps the button disabled: the next technology takes
+// over the deleted number, so a second click would delete it too
+var deleting = false;
 
 function showDetails(entry) {
   var row = null;
@@ -302,6 +316,9 @@ function showDetails(entry) {
   document.getElementById('details-type').textContent = row.type;
   document.getElementById('details-status').textContent = row.status;
   document.getElementById('details-trend').textContent = row.trend;
+  currentDetailsRow = row;
+  detailsError.textContent = '';
+  detailsDelete.disabled = deleting;
   detailsOpener = document.activeElement;
   detailsOverlay.hidden = false;
   detailsClose.focus();
@@ -313,7 +330,54 @@ function closeDetails() {
     detailsOpener.focus();
   }
   detailsOpener = null;
+  currentDetailsRow = null;
 }
+
+detailsDelete.addEventListener('click', function() {
+  var row = currentDetailsRow;
+  if (deleting || !row) return;
+  // the row must come from the current list, not one replaced by a reload
+  if (listStale || technologies.indexOf(row) === -1) {
+    detailsError.textContent = 'The radar is out of date. Please reload the page before deleting.';
+    return;
+  }
+  if (!window.confirm('Delete "' + row.title + '"? Technologies numbered after it will be renumbered.')) {
+    return;
+  }
+  deleting = true;
+  detailsDelete.disabled = true;
+  detailsError.textContent = '';
+  fetch('/api/technologies/' + encodeURIComponent(row.number), { method: 'DELETE' })
+    .then(function(response) {
+      if (response.status === 204 || response.status === 404) {
+        // 404: already gone. Either way, reload the server's renumbered list;
+        // any open overlay now shows a stale number, so close it, both now
+        // and once the reload is done (the old radar stays clickable while
+        // it runs). Keep deletes blocked until the reload succeeds.
+        listStale = true;
+        if (!detailsOverlay.hidden) {
+          closeDetails();
+        }
+        return loadAndRender().then(function() {
+          if (!detailsOverlay.hidden) {
+            closeDetails();
+          }
+        });
+      } else if (currentDetailsRow === row) {
+        detailsError.textContent = 'Could not delete the technology. Please try again.';
+      }
+    })
+    .catch(function(err) {
+      console.log('Error deleting technology', err);
+      if (currentDetailsRow === row) {
+        detailsError.textContent = 'Could not delete the technology. Please try again.';
+      }
+    })
+    .then(function() {
+      deleting = false;
+      detailsDelete.disabled = false;
+    });
+});
 
 detailsClose.addEventListener('click', closeDetails);
 detailsOverlay.addEventListener('click', function(event) {

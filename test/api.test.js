@@ -4,8 +4,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createApp } = require('../server/app');
 
-async function withServer({ listTechnologies = async () => [], createTechnology = async () => { throw new Error('not expected'); } }, fn) {
-  const app = createApp({ listTechnologies, createTechnology });
+async function withServer({
+  listTechnologies = async () => [],
+  createTechnology = async () => { throw new Error('not expected'); },
+  deleteTechnology = async () => { throw new Error('not expected'); },
+}, fn) {
+  const app = createApp({ listTechnologies, createTechnology, deleteTechnology });
   const server = await new Promise((resolve) => {
     const s = app.listen(0, () => resolve(s));
   });
@@ -196,6 +200,65 @@ test('POST /api/technologies returns 500 when the database fails', async () => {
       assert.equal(res.status, 500);
       const body = await res.json();
       assert.equal(body.error, 'Failed to create technology');
+      assert.doesNotMatch(JSON.stringify(body), /connection refused/);
+    });
+  });
+});
+
+// Fake database delete: records its calls and returns `result`.
+function fakeDelete(result = true) {
+  const calls = [];
+  const del = async (number) => {
+    calls.push(number);
+    return result;
+  };
+  return { del, calls };
+}
+
+function del(base, number) {
+  return fetch(`${base}/api/technologies/${number}`, { method: 'DELETE' });
+}
+
+test('DELETE /api/technologies/:number deletes and returns 204', async () => {
+  const { del: deleteTechnology, calls } = fakeDelete(true);
+  await withServer({ deleteTechnology }, async (base) => {
+    const res = await del(base, 10);
+    assert.equal(res.status, 204);
+    assert.equal(await res.text(), '');
+    assert.deepEqual(calls, [10]);
+  });
+});
+
+test('DELETE /api/technologies/:number returns 404 when the technology does not exist', async () => {
+  const { del: deleteTechnology, calls } = fakeDelete(false);
+  await withServer({ deleteTechnology }, async (base) => {
+    const res = await del(base, 999);
+    assert.equal(res.status, 404);
+    assert.deepEqual(await res.json(), { error: 'Technology not found' });
+    assert.deepEqual(calls, [999]);
+  });
+});
+
+for (const param of ['abc', '0', '-1', '1.5', '01', '1e3', '99999999999', '2147483648']) {
+  test(`DELETE /api/technologies/${param} returns 400`, async () => {
+    const { del: deleteTechnology, calls } = fakeDelete(true);
+    await withServer({ deleteTechnology }, async (base) => {
+      const res = await del(base, param);
+      assert.equal(res.status, 400);
+      const body = await res.json();
+      assert.equal(body.errors.number, 'Number must be a positive integer');
+      assert.equal(calls.length, 0);
+    });
+  });
+}
+
+test('DELETE /api/technologies/:number returns 500 when the database fails', async () => {
+  await withSilencedConsoleError(async () => {
+    await withServer({ deleteTechnology: async () => { throw new Error('connection refused'); } }, async (base) => {
+      const res = await del(base, 3);
+      assert.equal(res.status, 500);
+      const body = await res.json();
+      assert.equal(body.error, 'Failed to delete technology');
       assert.doesNotMatch(JSON.stringify(body), /connection refused/);
     });
   });

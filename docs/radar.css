@@ -8,15 +8,6 @@ h3 {
 li {
   margin: 25px 50px 0 0;
 }
-table {
-  width: 1400px;
-  margin: 0 50px 0 50px;
-}
-td {
-  width: 50%;
-  vertical-align: top;
-  padding-right: 60px;
-}
 .hover-underline {
   text-decoration: none;
 }

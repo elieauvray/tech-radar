@@ -69,6 +69,8 @@ radar_visualization({
   ],
   print_layout: true,
   links_in_new_tabs: true,
+  // Optional: function(entry, event) called when a blip or its legend entry is clicked.
+  // on_entry_click: function (entry) { console.log(entry.id, entry.label); },
   entries: [
    {
       label: "Some Entry",
@@ -99,6 +101,16 @@ Express server (`server/`) serves the front end in `docs/` and exposes
 `docs/index.html` builds the radar from that endpoint; the mapping from
 `type` / `status` / `trend` to quadrant / ring / moved lives in
 `docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.
+
+`POST /api/technologies` adds a technology from the page's "Add a technology"
+form. The JSON body holds `title` (1–60 characters), `description` (1–280
+characters), `type`, `status` and `trend` (one of the values in
+`docs/technology-mapping.js`). `number` is never accepted from the client: the
+database assigns the next one. A valid request returns `201` with the created
+row; an invalid one returns `400` with `{ "errors": { "<field>": "<message>" } }`.
+The rules live in `docs/technology-validation.js`, which both the server and
+the browser load, so client-side and server-side checks are identical.
+Clicking a blip or a legend entry opens an overlay with the technology's details.
 
 - `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
 - `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data or reuse numbers.

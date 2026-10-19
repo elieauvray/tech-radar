@@ -43,6 +43,7 @@ function radar_visualization(config) {
   ]
   config.title_offset = config.title_offset || { x: -675, y: -420 };
   config.title_logo = config.title_logo || null;  // optional { url, width, height }
+  config.on_entry_click = (typeof config.on_entry_click === "function") ? config.on_entry_click : null;  // optional function(entry, event)
   config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
   var default_title_banner = { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };  // width defaults to reaching the right edge
   config.title_banner = ("title_banner" in config) ? (config.title_banner ? Object.assign({}, default_title_banner, config.title_banner) : null) : default_title_banner;  // optional gradient band behind the title, null to disable
@@ -220,6 +221,12 @@ function radar_visualization(config) {
     .style("background-color", config.colors.background)
     .attr("width", scaled_width)
     .attr("height", (config.height + header_gap) * config.scale);
+
+  // clear any previous drawing so calling radar_visualization again redraws
+  svg.selectAll("*").remove();
+  if (config.print_ring_descriptions_table) {
+    d3.selectAll("table.radar-table").remove();
+  }
 
   var radar = svg.append("g");
   if ("zoomed_quadrant" in config) {
@@ -423,6 +430,11 @@ function radar_visualization(config) {
               .attr("target", function (d, i) {
                  return (d.link && config.links_in_new_tabs) ? "_blank" : null;
               })
+              .on("click", function(event, d) {
+                if (!config.on_entry_click) return;
+                if (!d.link) event.preventDefault(); // do not jump to "#"
+                config.on_entry_click(d, event);
+              })
             .append("text")
               .attr("transform", function(d, i) { return legend_transform(quadrant, ring, config.legend_column_width, i, previousLegendHeight); })
               .attr("class", "legend" + quadrant + ring)
@@ -554,6 +566,12 @@ function radar_visualization(config) {
         .attr("transform", function(d, i) { return legend_transform(d.quadrant, d.ring, config.legend_column_width, i); })
         .on("mouseover", function(event, d) { showBubble(d); highlightLegendItem(d); })
         .on("mouseout", function(event, d) { hideBubble(d); unhighlightLegendItem(d); });
+
+  if (config.on_entry_click) {
+    blips
+      .style("cursor", "pointer")
+      .on("click", function(event, d) { config.on_entry_click(d, event); });
+  }
 
   // configure each blip
   blips.each(function(d) {

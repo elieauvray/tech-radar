@@ -11,15 +11,76 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-validation.js"></script>
 
 <link rel="stylesheet" href="radar.css">
 </head>
 
 <body>
 
+<div class="radar-container">
 <svg id="radar"></svg>
+<button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
+</div>
+
+<div id="add-modal" class="modal-backdrop" hidden>
+<form id="add-form" class="modal" role="dialog" aria-modal="true" aria-labelledby="add-modal-title" novalidate>
+<button type="button" class="modal-close" id="add-close" aria-label="Close">&#x2715;</button>
+<h2 id="add-modal-title">Add a technology</h2>
+<div class="field">
+<label for="field-title">Title</label>
+<input type="text" id="field-title" name="title" aria-describedby="error-title">
+<span class="field-error" id="error-title"></span>
+</div>
+<div class="field">
+<label for="field-description">Description</label>
+<textarea id="field-description" name="description" rows="4" aria-describedby="description-counter error-description"></textarea>
+<span class="char-counter" id="description-counter" aria-live="polite"></span>
+<span class="field-error" id="error-description"></span>
+</div>
+<div class="field">
+<label for="field-type">Type</label>
+<select id="field-type" name="type" aria-describedby="error-type"></select>
+<span class="field-error" id="error-type"></span>
+</div>
+<div class="field">
+<label for="field-status">Status</label>
+<select id="field-status" name="status" aria-describedby="error-status"></select>
+<span class="field-error" id="error-status"></span>
+</div>
+<div class="field">
+<label for="field-trend">Trend</label>
+<select id="field-trend" name="trend" aria-describedby="error-trend"></select>
+<span class="field-error" id="error-trend"></span>
+</div>
+<p class="form-error" id="error-general" role="alert"></p>
+<div class="modal-actions">
+<button type="button" id="add-cancel">Cancel</button>
+<button type="submit" id="add-submit">Add</button>
+</div>
+</form>
+</div>
+
+<div id="details-overlay" class="modal-backdrop" hidden>
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="details-title">
+<button type="button" class="modal-close" id="details-close" aria-label="Close">&#x2715;</button>
+<h2 id="details-title"></h2>
+<dl class="details-list">
+<dt>Number</dt><dd id="details-number"></dd>
+<dt>Title</dt><dd id="details-name"></dd>
+<dt>Description</dt><dd id="details-description"></dd>
+<dt>Type</dt><dd id="details-type"></dd>
+<dt>Status</dt><dd id="details-status"></dd>
+<dt>Trend</dt><dd id="details-trend"></dd>
+</dl>
+</div>
+</div>
 
 <script>
+var FIELDS = ['title', 'description', 'type', 'status', 'trend'];
+var technologies = [];
+var configData = null;
+
 function fetchJson(url) {
   return fetch(url).then(function(response) {
     if (!response.ok) {
@@ -29,18 +90,13 @@ function fetchJson(url) {
   });
 }
 
-Promise.all([
-  fetchJson('/api/technologies'),
-  fetchJson('./config.json')
-]).then(function(results) {
-  var technologies = results[0];
-  var data = results[1];
+function render() {
   radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
     title: "Société Générale Tech Radar",
     title_logo: { url: "images/societe-generale-logo.svg", width: 198, height: 39 },
     title_suffix: "Tech Radar",
-    date: data.date,
+    date: configData.date,
     quadrants: [
       { name: "Language" },
       { name: "Infrastructure" },
@@ -53,11 +109,227 @@ Promise.all([
       { name: "ASSESS", color: "#c7ba00" },
       { name: "HOLD", color: "#e09b96" }
     ],
-    entries: technologies.map(TechnologyMapping.toRadarEntry)
+    // rebuilt on every render: radar_visualization mutates its entries
+    entries: technologies.map(TechnologyMapping.toRadarEntry),
+    on_entry_click: showDetails
   });
-}).catch(function(err) {
-  console.log('Error loading radar data', err);
+}
+
+function loadAndRender() {
+  return Promise.all([
+    fetchJson('/api/technologies'),
+    fetchJson('./config.json')
+  ]).then(function(results) {
+    technologies = results[0];
+    configData = results[1];
+    render();
+  }).catch(function(err) {
+    console.log('Error loading radar data', err);
+  });
+}
+
+// ---- Add a technology ----
+var addButton = document.getElementById('add-technology');
+var addModal = document.getElementById('add-modal');
+var addForm = document.getElementById('add-form');
+var addSubmit = document.getElementById('add-submit');
+var descriptionField = document.getElementById('field-description');
+var descriptionCounter = document.getElementById('description-counter');
+var generalError = document.getElementById('error-general');
+
+function fillSelect(id, table) {
+  var select = document.getElementById(id);
+  var placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Select…';
+  select.appendChild(placeholder);
+  Object.keys(table).forEach(function(key) {
+    var option = document.createElement('option');
+    option.value = key;
+    option.textContent = key;
+    select.appendChild(option);
+  });
+}
+
+fillSelect('field-type', TechnologyMapping.TYPES);
+fillSelect('field-status', TechnologyMapping.STATUSES);
+fillSelect('field-trend', TechnologyMapping.TRENDS);
+
+function updateCounter() {
+  var max = TechnologyValidation.DESCRIPTION_MAX;
+  var count = TechnologyValidation.codePointLength(descriptionField.value.trim());
+  descriptionCounter.textContent = count + ' / ' + max;
+  descriptionCounter.classList.toggle('over', count > max);
+}
+
+function clearErrors() {
+  FIELDS.forEach(function(field) {
+    document.getElementById('error-' + field).textContent = '';
+    document.getElementById('field-' + field).removeAttribute('aria-invalid');
+  });
+  generalError.textContent = '';
+}
+
+function showErrors(errors) {
+  var firstInvalid = null;
+  var other = [];
+  Object.keys(errors).forEach(function(key) {
+    if (FIELDS.indexOf(key) !== -1) {
+      document.getElementById('error-' + key).textContent = errors[key];
+      var input = document.getElementById('field-' + key);
+      input.setAttribute('aria-invalid', 'true');
+      if (!firstInvalid) firstInvalid = input;
+    } else {
+      other.push(String(errors[key]));
+    }
+  });
+  generalError.textContent = other.join(' ');
+  if (firstInvalid) firstInvalid.focus();
+}
+
+function formData() {
+  var data = {};
+  FIELDS.forEach(function(field) {
+    data[field] = document.getElementById('field-' + field).value;
+  });
+  return data;
+}
+
+// a save in flight keeps the submit button disabled even if the form is
+// closed and reopened, so the same technology cannot be posted twice;
+// formGeneration lets a late response tell that its form was reset
+var saving = false;
+var formGeneration = 0;
+
+function resetAddForm() {
+  formGeneration++;
+  addForm.reset();
+  clearErrors();
+  updateCounter();
+  addSubmit.disabled = saving;
+}
+
+function openAddModal() {
+  resetAddForm();
+  addModal.hidden = false;
+  document.getElementById('field-title').focus();
+}
+
+function closeAddModal() {
+  addModal.hidden = true;
+  resetAddForm();
+  addButton.focus();
+}
+
+addButton.addEventListener('click', openAddModal);
+document.getElementById('add-cancel').addEventListener('click', closeAddModal);
+document.getElementById('add-close').addEventListener('click', closeAddModal);
+descriptionField.addEventListener('input', updateCounter);
+
+addForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  if (saving) {
+    return;
+  }
+  clearErrors();
+  var result = TechnologyValidation.validateTechnology(formData());
+  if (Object.keys(result.errors).length > 0) {
+    showErrors(result.errors);
+    return;
+  }
+  saving = true;
+  addSubmit.disabled = true;
+  var generation = formGeneration;
+  fetch('/api/technologies', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(result.value)
+  }).then(function(response) {
+    return response.json().catch(function() { return null; }).then(function(body) {
+      // the form was closed (and maybe reopened) while this request ran
+      var stale = generation !== formGeneration;
+      if (response.status === 201 && body) {
+        // the row is saved: close first so a redraw problem can never
+        // report a failed save and invite a duplicate
+        if (!stale) {
+          closeAddModal();
+        }
+        if (configData) {
+          technologies.push(body);
+          render();
+        } else {
+          // the initial load failed: fetch everything again
+          loadAndRender();
+        }
+      } else if (stale) {
+        return;
+      } else if (response.status === 400 && body && body.errors) {
+        showErrors(body.errors);
+      } else {
+        generalError.textContent = 'Could not save the technology. Please try again.';
+      }
+    });
+  }).catch(function(err) {
+    console.log('Error saving technology', err);
+    if (generation === formGeneration) {
+      generalError.textContent = 'Could not reach the server. Please try again.';
+    }
+  }).then(function() {
+    saving = false;
+    addSubmit.disabled = false;
+  });
 });
+
+// ---- Details overlay ----
+var detailsOverlay = document.getElementById('details-overlay');
+var detailsClose = document.getElementById('details-close');
+var detailsOpener = null;
+
+function showDetails(entry) {
+  var row = null;
+  for (var i = 0; i < technologies.length; i++) {
+    if (String(technologies[i].number) === entry.id) {
+      row = technologies[i];
+      break;
+    }
+  }
+  if (!row) return;
+  // user-supplied data: always set with textContent
+  document.getElementById('details-title').textContent = row.number + '. ' + row.title;
+  document.getElementById('details-number').textContent = String(row.number);
+  document.getElementById('details-name').textContent = row.title;
+  document.getElementById('details-description').textContent = row.description;
+  document.getElementById('details-type').textContent = row.type;
+  document.getElementById('details-status').textContent = row.status;
+  document.getElementById('details-trend').textContent = row.trend;
+  detailsOpener = document.activeElement;
+  detailsOverlay.hidden = false;
+  detailsClose.focus();
+}
+
+function closeDetails() {
+  detailsOverlay.hidden = true;
+  if (detailsOpener && typeof detailsOpener.focus === 'function') {
+    detailsOpener.focus();
+  }
+  detailsOpener = null;
+}
+
+detailsClose.addEventListener('click', closeDetails);
+detailsOverlay.addEventListener('click', function(event) {
+  if (event.target === detailsOverlay) closeDetails();
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key !== 'Escape' && event.key !== 'Esc') return;
+  if (!detailsOverlay.hidden) {
+    closeDetails();
+  } else if (!addModal.hidden) {
+    closeAddModal();
+  }
+});
+
+loadAndRender();
 </script>
 
 <table>

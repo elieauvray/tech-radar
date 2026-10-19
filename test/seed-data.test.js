@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const mapping = require('../docs/technology-mapping.js');
 const seedData = require('../db/seed-data.json');
 
@@ -52,6 +54,20 @@ test('type/status/trend counts match the former config.json', () => {
     'Language|ASSESS|no change': 1,
     'Language|HOLD|no change': 3,
   });
+});
+
+test('#52 is Upsun Cloud Application Platform and ZMON is gone', () => {
+  assert.deepEqual(
+    { title: seedData[51].title, type: seedData[51].type, status: seedData[51].status, trend: seedData[51].trend },
+    { title: 'Upsun Cloud Application Platform', type: 'Infrastructure', status: 'ADOPT', trend: 'no change' }
+  );
+  assert.ok(!seedData.some((row) => row.title === 'ZMON'));
+});
+
+test('migration 002 renames row 52 only while it is still ZMON', () => {
+  const sql = fs.readFileSync(path.join(__dirname, '../db/migrations/002_replace_zmon_with_upsun.sql'), 'utf8');
+  assert.match(sql, /WHERE number = 52 AND title = 'ZMON'/);
+  assert.match(sql, /title = 'Upsun Cloud Application Platform'/);
 });
 
 test('order follows the former radar numbering (quadrants 2, 3, 1, 0, then ring)', () => {

@@ -84,7 +84,7 @@
 var FIELDS = ['title', 'description', 'type', 'status', 'trend'];
 var technologies = [];
 var configData = null;
-// true after a delete until the renumbered list has been reloaded: until
+// true after a delete or an insert until the renumbered list has been reloaded: until
 // then the drawn numbers may point at a different technology on the server
 var listStale = false;
 
@@ -262,13 +262,13 @@ addForm.addEventListener('submit', function(event) {
         if (!stale) {
           closeAddModal();
         }
-        if (configData) {
-          technologies.push(body);
-          render();
-        } else {
-          // the initial load failed: fetch everything again
-          loadAndRender();
+        // the new row may be numbered in the middle, so later rows were
+        // renumbered: block deletes and reload the whole list
+        listStale = true;
+        if (!detailsOverlay.hidden) {
+          closeDetails();
         }
+        loadAndRender();
       } else if (stale) {
         return;
       } else if (response.status === 400 && body && body.errors) {

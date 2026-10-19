@@ -65,6 +65,36 @@ test('toRadarEntry builds a radar_visualization entry', () => {
   });
 });
 
+test('compareTechnologies orders by type, then status, then title', () => {
+  const cmp = mapping.compareTechnologies;
+  // type beats status and title
+  assert.ok(cmp(
+    { type: 'Datastores', status: 'HOLD', title: 'Z' },
+    { type: 'Infrastructure', status: 'ADOPT', title: 'A' }
+  ) < 0);
+  // status beats title
+  assert.ok(cmp(
+    { type: 'Language', status: 'ADOPT', title: 'Z' },
+    { type: 'Language', status: 'TRIAL', title: 'A' }
+  ) < 0);
+  // titles alphabetically, case-insensitively
+  assert.ok(cmp(
+    { type: 'Infrastructure', status: 'ADOPT', title: 'Amazon SageMaker' },
+    { type: 'Infrastructure', status: 'ADOPT', title: 'AWS CloudFormation' }
+  ) < 0);
+  assert.equal(cmp(
+    { type: 'Language', status: 'ADOPT', title: 'Go' },
+    { type: 'Language', status: 'ADOPT', title: 'Go' }
+  ), 0);
+  assert.deepEqual(mapping.TYPE_ORDER, ['Datastores', 'Data Management', 'Infrastructure', 'Language']);
+});
+
+test('sorting the seed data with compareTechnologies leaves it unchanged', () => {
+  const seedData = require('../db/seed-data.json');
+  const sorted = seedData.slice().sort(mapping.compareTechnologies);
+  assert.deepEqual(sorted.map((row) => row.title), seedData.map((row) => row.title));
+});
+
 test('toRadarEntry throws on an unknown enum value', () => {
   assert.throws(() => mapping.toRadarEntry({
     number: 1, title: 'X', description: 'Y', type: 'Other', status: 'ADOPT', trend: 'new',

@@ -73,6 +73,26 @@
     return lookup(MOVED_TO_TREND, moved, "moved");
   }
 
+  // Canonical radar numbering order: types in radar order (quadrants
+  // 2, 3, 1, 0), then status (ADOPT, TRIAL, ASSESS, HOLD), then title.
+  var TYPE_ORDER = ["Datastores", "Data Management", "Infrastructure", "Language"];
+
+  function typeRank(type) {
+    lookup(TYPES, type, "type");
+    return TYPE_ORDER.indexOf(type);
+  }
+
+  // Comparator for rows with `type`, `status` and `title`, matching the
+  // order used to number technologies. Titles use a fixed locale so the
+  // result does not depend on the runtime's default locale.
+  function compareTechnologies(a, b) {
+    var byType = typeRank(a.type) - typeRank(b.type);
+    if (byType !== 0) return byType;
+    var byStatus = statusToRing(a.status) - statusToRing(b.status);
+    if (byStatus !== 0) return byStatus;
+    return a.title.localeCompare(b.title, "en");
+  }
+
   function toRadarEntry(row) {
     return {
       id: String(row.number),
@@ -92,6 +112,8 @@
     QUADRANT_TO_TYPE: QUADRANT_TO_TYPE,
     RING_TO_STATUS: RING_TO_STATUS,
     MOVED_TO_TREND: MOVED_TO_TREND,
+    TYPE_ORDER: TYPE_ORDER,
+    compareTechnologies: compareTechnologies,
     typeToQuadrant: typeToQuadrant,
     statusToRing: statusToRing,
     trendToMoved: trendToMoved,

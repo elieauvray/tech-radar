@@ -50,6 +50,11 @@ radar_visualization({
   // used as the image's accessible label. `title_suffix` is drawn after the logo.
   // title_logo: { url: "images/my-logo.svg", width: 198, height: 39 },
   // title_suffix: "Tech Radar",
+  // Optional: vertical space between the title header and the radar (default 40).
+  // header_gap: 40,
+  // Optional: gradient band behind the title. `width` defaults to reaching the
+  // right edge of the radar; set `title_banner: null` to disable the band.
+  // title_banner: { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" },
   quadrants: [
     { name: "Bottom Right" },
     { name: "Bottom Left" },

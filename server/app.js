@@ -31,7 +31,10 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
   });
 
   app.post('/api/technologies', express.json({ limit: '10kb', strict: false }), async (req, res) => {
-    // `number` and any other extra key are dropped by the validator.
+    // `number` and any other extra key are dropped by the validator. The new
+    // technology is numbered at its sorted position (type, status, title) and
+    // every later technology moves up one number; the response carries the
+    // assigned number.
     const { value, errors } = validateTechnology(req.body);
     if (Object.keys(errors).length > 0) {
       res.status(400).json({ errors });

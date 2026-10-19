@@ -263,3 +263,23 @@ test('DELETE /api/technologies/:number returns 500 when the database fails', asy
     });
   });
 });
+
+test('GET /healthz returns 200 with {status: ok}', async () => {
+  await withServer({}, async (base) => {
+    const res = await fetch(`${base}/healthz`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /application\/json/);
+    assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(res.headers.get('cache-control'), 'no-store');
+    assert.deepEqual(await res.json(), { status: 'ok' });
+  });
+});
+
+test('GET /healthz does not touch the database', async () => {
+  const fail = async () => { throw new Error('database down'); };
+  await withServer({ listTechnologies: fail, createTechnology: fail, deleteTechnology: fail }, async (base) => {
+    const res = await fetch(`${base}/healthz`);
+    assert.equal(res.status, 200);
+    assert.deepEqual(await res.json(), { status: 'ok' });
+  });
+});

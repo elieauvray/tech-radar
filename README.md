@@ -85,6 +85,17 @@ Radar](http://zalando.github.io/tech-radar/).
 
 Tech Radar is a static page, so it can be deployed using any hosting provider of your choice offering static page hosting.
 
+### Deploying on Upsun
+
+The repository ships an Upsun configuration in `.upsun/config.yaml` that serves the `docs/` directory as static files (no build step, no services). To deploy it, create a project and push:
+
+```
+upsun project:create
+upsun push
+```
+
+Alternatively, connect the GitHub repository to your Upsun project so that every push is deployed automatically.
+
 ## Local Development
 
 1. install dependencies with yarn (or npm):

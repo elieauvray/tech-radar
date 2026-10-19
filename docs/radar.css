@@ -128,6 +128,19 @@ li {
   padding: 6px 14px;
   cursor: pointer;
 }
+.danger-btn {
+  background: #c00;
+  border: 1px solid #a00;
+  border-radius: 3px;
+  color: #fff;
+}
+.danger-btn:hover:not(:disabled) {
+  background: #a00;
+}
+.danger-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 .details-list {
   display: grid;
   grid-template-columns: max-content 1fr;

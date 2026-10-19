@@ -111,9 +111,15 @@ row; an invalid one returns `400` with `{ "errors": { "<field>": "<message>" } }
 The rules live in `docs/technology-validation.js`, which both the server and
 the browser load, so client-side and server-side checks are identical.
 Clicking a blip or a legend entry opens an overlay with the technology's details.
+The overlay has a "Delete" button that, after a confirmation, calls
+`DELETE /api/technologies/:number`. The server removes the technology and moves
+every technology numbered after it down by one, in a single transaction, so
+numbers stay contiguous; the page then reloads the radar. The endpoint returns
+`204` on success, `400` when `:number` is not a positive integer and `404` when
+no technology has that number.
 
 - `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
-- `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data or reuse numbers.
+- `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data. Numbers are reused after a delete (later technologies shift down), but the seed never runs again once the table has been used, even if every technology is deleted.
 
 ## Deployment
 

@@ -6,9 +6,11 @@ const { validateTechnology } = require('../docs/technology-validation');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
-// Build the Express app. `listTechnologies` and `createTechnology` are
-// injected so tests can replace the database with a fake.
-function createApp({ listTechnologies, createTechnology }) {
+const MAX_INT4 = 2147483647;
+
+// Build the Express app. `listTechnologies`, `createTechnology` and
+// `deleteTechnology` are injected so tests can replace the database with a fake.
+function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
   const app = express();
   app.disable('x-powered-by');
 
@@ -41,6 +43,27 @@ function createApp({ listTechnologies, createTechnology }) {
     } catch (err) {
       console.error('Failed to create technology', err);
       res.status(500).json({ error: 'Failed to create technology' });
+    }
+  });
+
+  // Delete a technology; every later technology moves down one number.
+  app.delete('/api/technologies/:number', async (req, res) => {
+    const param = req.params.number;
+    const number = Number(param);
+    if (!/^[1-9]\d*$/.test(param) || !Number.isSafeInteger(number) || number > MAX_INT4) {
+      res.status(400).json({ errors: { number: 'Number must be a positive integer' } });
+      return;
+    }
+    try {
+      const deleted = await deleteTechnology(number);
+      if (!deleted) {
+        res.status(404).json({ error: 'Technology not found' });
+        return;
+      }
+      res.status(204).end();
+    } catch (err) {
+      console.error('Failed to delete technology', err);
+      res.status(500).json({ error: 'Failed to delete technology' });
     }
   });
 

@@ -90,13 +90,24 @@ in adjusting the size of the radar.
 As a working example, you can check out `docs/index.html` &mdash; the source of our [public Tech
 Radar](http://zalando.github.io/tech-radar/).
 
-## Deployment
+## Architecture
 
-Tech Radar is a static page, so it can be deployed using any hosting provider of your choice offering static page hosting.
+The radar entries are stored in a PostgreSQL `technologies` table
+(`number`, `title`, `description`, `type`, `status`, `trend`). A small
+Express server (`server/`) serves the front end in `docs/` and exposes
+`GET /api/technologies`, which returns every technology ordered by `number`.
+`docs/index.html` builds the radar from that endpoint; the mapping from
+`type` / `status` / `trend` to quadrant / ring / moved lives in
+`docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.
+
+- `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
+- `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data or reuse numbers.
+
+## Deployment
 
 ### Deploying on Upsun
 
-The repository ships an Upsun configuration in `.upsun/config.yaml` that serves the `docs/` directory as static files (no build step, no services). To deploy it, create a project and push:
+The repository ships an Upsun configuration in `.upsun/config.yaml`: a Node.js application running the Express server, a PostgreSQL service exposed through the `database` relationship, and a deploy hook that runs the migration and then the seed. To deploy it, create a project and push:
 
 ```
 upsun project:create
@@ -107,22 +118,42 @@ Alternatively, connect the GitHub repository to your Upsun project so that every
 
 ## Local Development
 
-1. install dependencies with yarn (or npm):
+1. install dependencies:
 
 ```
-yarn 
+npm install
 ```
 
-2. start local dev server:
+2. point `DATABASE_URL` at a PostgreSQL database (create it first, e.g. with `createdb techradar`):
 
 ```
-yarn start
+export DATABASE_URL=postgres://user:password@localhost:5432/techradar
 ```
 
-3. your default browser should automatically open and show the url
- 
+3. create the schema and load the seed data (both commands are safe to re-run):
+
+```
+npm run migrate
+npm run seed
+```
+
+4. start the server (set `PORT` to change the default port):
+
+```
+npm start
+```
+
+5. open the radar in your browser:
+
 ```
 http://localhost:3000/
+```
+
+Run the tests and the linter with:
+
+```
+npm test
+npm run lint
 ```
 
 ## License

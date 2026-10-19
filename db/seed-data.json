@@ -1,0 +1,569 @@
+[
+  {
+    "title": "Amazon ElastiCache",
+    "description": "Managed in-memory caching service from AWS, compatible with Redis OSS, Valkey and Memcached.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon Redshift",
+    "description": "Fully managed, petabyte-scale columnar data warehouse on AWS, queried with SQL.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS DynamoDB",
+    "description": "Fully managed, serverless key-value and document NoSQL database on AWS with single-digit millisecond latency.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS S3",
+    "description": "AWS object storage service offering durable, scalable storage for any amount of data.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Elasticsearch",
+    "description": "Distributed search and analytics engine built on Apache Lucene, used for full-text search and log analytics.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "PostgreSQL",
+    "description": "Open-source object-relational database known for reliability, standards compliance and extensibility.",
+    "type": "Datastores",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon Neptune",
+    "description": "Fully managed graph database on AWS supporting property graph (Gremlin, openCypher) and RDF (SPARQL) models.",
+    "type": "Datastores",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon SageMaker Feature Store",
+    "description": "Managed repository in Amazon SageMaker to store, share and serve machine learning features for training and inference.",
+    "type": "Datastores",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS DocumentDB",
+    "description": "Fully managed document database on AWS with MongoDB API compatibility.",
+    "type": "Datastores",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "Druid",
+    "description": "Apache Druid: real-time analytics database designed for fast OLAP queries on large event datasets.",
+    "type": "Datastores",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "HDFS",
+    "description": "Hadoop Distributed File System: distributed, fault-tolerant storage for large datasets across commodity hardware.",
+    "type": "Datastores",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon MemoryDB",
+    "description": "Durable, Redis OSS and Valkey compatible in-memory database service on AWS with Multi-AZ transaction log.",
+    "type": "Datastores",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Valkey",
+    "description": "Open-source, high-performance key-value store forked from Redis and maintained under the Linux Foundation.",
+    "type": "Datastores",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Apache Cassandra",
+    "description": "Distributed wide-column NoSQL database designed for high availability and linear scalability.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Consul",
+    "description": "HashiCorp tool for service discovery, health checking and distributed key-value configuration.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Hazelcast",
+    "description": "Distributed in-memory data grid and computing platform for Java applications.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "HBase",
+    "description": "Apache HBase: distributed, column-oriented NoSQL database running on top of HDFS.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Memcached",
+    "description": "Simple, high-performance distributed in-memory key-value cache.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "MongoDB",
+    "description": "Document-oriented NoSQL database storing JSON-like documents with flexible schemas.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "MySQL",
+    "description": "Widely used open-source relational database management system, now owned by Oracle.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Oracle DB",
+    "description": "Oracle's commercial relational database management system.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Redis",
+    "description": "In-memory data structure store used as a cache, message broker and database.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Solr",
+    "description": "Apache Solr: open-source enterprise search platform built on Apache Lucene.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "ZooKeeper",
+    "description": "Apache ZooKeeper: centralized coordination service for configuration, naming and distributed synchronization.",
+    "type": "Datastores",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Apache Airflow",
+    "description": "Open-source platform to author, schedule and monitor workflows defined as Python DAGs.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS EMR",
+    "description": "Amazon EMR: managed big data platform on AWS for running Spark, Hive, Presto and other frameworks.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Kinesis",
+    "description": "AWS services for collecting, processing and analysing real-time streaming data.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS SNS",
+    "description": "Amazon Simple Notification Service: managed pub/sub messaging for application-to-application and user notifications.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS SQS",
+    "description": "Amazon Simple Queue Service: fully managed message queuing for decoupling distributed components.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Databricks",
+    "description": "Unified data analytics and AI platform built around Apache Spark and the lakehouse architecture.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Flink",
+    "description": "Apache Flink: distributed engine for stateful computations over unbounded and bounded data streams.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "moved up"
+  },
+  {
+    "title": "Kafka",
+    "description": "Apache Kafka: distributed event streaming platform for high-throughput, durable publish/subscribe messaging.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Nakadi",
+    "description": "Open-source event broker by Zalando providing a RESTful API on top of Kafka-like queues.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Spark",
+    "description": "Apache Spark: unified engine for large-scale data processing, with SQL, streaming and machine learning libraries.",
+    "type": "Data Management",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon Translate",
+    "description": "AWS neural machine translation service for fast, customisable language translation.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Athena",
+    "description": "Serverless interactive query service on AWS to analyse data in S3 using standard SQL.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "dbt",
+    "description": "Data build tool: SQL-based framework to transform, test and document data in the warehouse.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "Google BigQuery",
+    "description": "Serverless, highly scalable data warehouse on Google Cloud queried with SQL.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "Presto",
+    "description": "Distributed SQL query engine for interactive analytics across heterogeneous data sources.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "RabbitMQ",
+    "description": "Open-source message broker implementing AMQP and other messaging protocols.",
+    "type": "Data Management",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Glue",
+    "description": "Serverless data integration service on AWS for ETL jobs and a central data catalog.",
+    "type": "Data Management",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Lake Formation",
+    "description": "AWS service to build, secure and manage data lakes with fine-grained access control.",
+    "type": "Data Management",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Streamlit",
+    "description": "Open-source Python framework to build interactive data apps and dashboards quickly.",
+    "type": "Data Management",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Amazon SageMaker",
+    "description": "Fully managed AWS service to build, train and deploy machine learning models.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS CloudFormation",
+    "description": "AWS infrastructure-as-code service that provisions resources from declarative templates.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS CloudFront",
+    "description": "AWS content delivery network that caches and serves content from edge locations worldwide.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS EKS",
+    "description": "Amazon Elastic Kubernetes Service: managed Kubernetes control plane on AWS.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "moved up"
+  },
+  {
+    "title": "Docker",
+    "description": "Platform to build, ship and run applications in lightweight containers.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Kubernetes",
+    "description": "Open-source system for automating deployment, scaling and management of containerized applications.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "OpenTelemetry",
+    "description": "Vendor-neutral observability framework and standard for traces, metrics and logs.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Skipper",
+    "description": "Open-source HTTP router and reverse proxy by Zalando, also used as a Kubernetes ingress controller.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "ZMON",
+    "description": "Open-source monitoring and alerting platform created by Zalando.",
+    "type": "Infrastructure",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Agentgateway",
+    "description": "Open-source data plane proxy for AI agent traffic, supporting agent-to-agent (A2A) and MCP protocols.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "new"
+  },
+  {
+    "title": "Amazon Bedrock",
+    "description": "Fully managed AWS service offering access to foundation models through a single API.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "moved up"
+  },
+  {
+    "title": "AWS Elemental MediaConvert",
+    "description": "File-based video transcoding service on AWS for broadcast and multiscreen delivery.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Lambda",
+    "description": "Serverless compute service on AWS that runs code in response to events without managing servers.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Step Functions",
+    "description": "Serverless workflow orchestration service on AWS based on state machines.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Transcribe",
+    "description": "Amazon Transcribe: automatic speech recognition service that converts speech to text.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "LiteLLM",
+    "description": "Open-source Python SDK and proxy exposing many LLM providers through an OpenAI-compatible API.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "moved up"
+  },
+  {
+    "title": "Open Policy Agent",
+    "description": "General-purpose policy engine that decouples policy decisions from code, using the Rego language.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "WebAssembly",
+    "description": "Portable binary instruction format enabling near-native performance in browsers and other runtimes.",
+    "type": "Infrastructure",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "AWS Service Catalog",
+    "description": "AWS service to create, govern and share catalogs of approved infrastructure products.",
+    "type": "Infrastructure",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Kotlin Multiplatform",
+    "description": "Kotlin technology for sharing code across Android, iOS, desktop, web and server targets.",
+    "type": "Infrastructure",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "mem0",
+    "description": "Open-source memory layer for AI agents and LLM applications that stores and retrieves user context.",
+    "type": "Infrastructure",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Slurm",
+    "description": "Open-source workload manager and job scheduler for Linux clusters and HPC systems.",
+    "type": "Infrastructure",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "GraalVM",
+    "description": "High-performance JDK distribution with ahead-of-time compilation to native images and polyglot support.",
+    "type": "Infrastructure",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Go",
+    "description": "Statically typed, compiled language from Google designed for simplicity, concurrency and fast builds.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "GraphQL",
+    "description": "Query language and runtime for APIs that lets clients request exactly the data they need.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Java",
+    "description": "General-purpose, object-oriented language running on the Java Virtual Machine.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "JavaScript",
+    "description": "Dynamic language of the web, running in browsers and on servers via runtimes like Node.js.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Kotlin",
+    "description": "Modern, statically typed JVM language from JetBrains, fully interoperable with Java.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "OpenAPI (Swagger)",
+    "description": "Specification for describing RESTful HTTP APIs in a machine-readable format, formerly Swagger.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Python",
+    "description": "High-level, general-purpose language known for readability and a rich ecosystem for data and scripting.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Scala",
+    "description": "JVM language combining object-oriented and functional programming with a strong static type system.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Swift",
+    "description": "Compiled language from Apple for building apps on iOS, macOS and other platforms.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "TypeScript",
+    "description": "Typed superset of JavaScript from Microsoft that compiles to plain JavaScript.",
+    "type": "Language",
+    "status": "ADOPT",
+    "trend": "no change"
+  },
+  {
+    "title": "Dart",
+    "description": "Client-optimized language from Google, used notably with the Flutter UI framework.",
+    "type": "Language",
+    "status": "TRIAL",
+    "trend": "no change"
+  },
+  {
+    "title": "R",
+    "description": "Language and environment for statistical computing and graphics.",
+    "type": "Language",
+    "status": "ASSESS",
+    "trend": "no change"
+  },
+  {
+    "title": "Clojure",
+    "description": "Dynamic, functional Lisp dialect running on the JVM with immutable data structures.",
+    "type": "Language",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Haskell",
+    "description": "Purely functional, lazily evaluated language with a strong static type system.",
+    "type": "Language",
+    "status": "HOLD",
+    "trend": "no change"
+  },
+  {
+    "title": "Rust",
+    "description": "Systems programming language focused on memory safety, performance and fearless concurrency.",
+    "type": "Language",
+    "status": "HOLD",
+    "trend": "no change"
+  }
+]

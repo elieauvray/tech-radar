@@ -181,14 +181,17 @@ function radar_visualization(config) {
     segmented[entry.quadrant][entry.ring].push(entry);
   }
 
-  // assign unique sequential id to each entry
+  // assign unique sequential id to each entry that does not provide one
   var id = 1;
   for (quadrant of [2,3,1,0]) {
     for (var ring = 0; ring < 4; ring++) {
       var entries = segmented[quadrant][ring];
       entries.sort(function(a,b) { return a.label.localeCompare(b.label); })
       for (var i=0; i<entries.length; i++) {
-        entries[i].id = "" + id++;
+        if (entries[i].id === undefined || entries[i].id === null) {
+          entries[i].id = "" + id;
+        }
+        id++;
       }
     }
   }

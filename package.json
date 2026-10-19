@@ -9,6 +9,13 @@
   "directories": {
     "doc": "docs"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  },
   "devDependencies": {
     "browser-sync": "^3.0.2",
     "eslint": "^8.52.0",
@@ -16,7 +23,11 @@
     "socket.io": "^4.7.2"
   },
   "scripts": {
-    "start": "browser-sync docs -w",
+    "start": "node server/index.js",
+    "dev:static": "browser-sync docs -w",
+    "migrate": "node db/migrate.js",
+    "seed": "node db/seed.js",
+    "test": "node --test test/*.test.js",
     "lint": "npm run lint:js && npm run lint:html",
     "lint:js": "eslint docs/*.js",
     "lint:html": "eslint docs/*.html"

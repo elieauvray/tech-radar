@@ -46,6 +46,10 @@ radar_visualization({
   // Arial, Helvetica, or Source Sans Pro seem to work well though
   font_family: "Arial, Helvetica",
   title: "My Radar",
+  // Optional: show a logo image instead of the text title. `title` is then
+  // used as the image's accessible label. `title_suffix` is drawn after the logo.
+  // title_logo: { url: "images/my-logo.svg", width: 198, height: 39 },
+  // title_suffix: "Tech Radar",
   quadrants: [
     { name: "Bottom Right" },
     { name: "Bottom Left" },

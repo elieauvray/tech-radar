@@ -101,8 +101,6 @@ Express server (`server/`) serves the front end in `docs/` and exposes
 `docs/index.html` builds the radar from that endpoint; the mapping from
 `type` / `status` / `trend` to quadrant / ring / moved lives in
 `docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.
-`GET /healthz` is a liveness endpoint: it returns `200` with `{"status":"ok"}`
-while the server is running and does not query the database.
 
 `POST /api/technologies` adds a technology from the page's "Add a technology"
 form. The JSON body holds `title` (1–60 characters), `description` (1–280

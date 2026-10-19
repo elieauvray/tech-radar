@@ -10,6 +10,7 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
+<script src="technology-mapping.js"></script>
 
 <link rel="stylesheet" href="radar.css">
 </head>
@@ -19,9 +20,21 @@
 <svg id="radar"></svg>
 
 <script>
-fetch('./config.json').then(function(response) {
-  return response.json();
-}).then(function(data) {
+function fetchJson(url) {
+  return fetch(url).then(function(response) {
+    if (!response.ok) {
+      throw new Error(url + ' responded with HTTP ' + response.status);
+    }
+    return response.json();
+  });
+}
+
+Promise.all([
+  fetchJson('/api/technologies'),
+  fetchJson('./config.json')
+]).then(function(results) {
+  var technologies = results[0];
+  var data = results[1];
   radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
     title: "Société Générale Tech Radar",
@@ -29,7 +42,7 @@ fetch('./config.json').then(function(response) {
     title_suffix: "Tech Radar",
     date: data.date,
     quadrants: [
-      { name: "Languages" },
+      { name: "Language" },
       { name: "Infrastructure" },
       { name: "Datastores" },
       { name: "Data Management" },
@@ -40,10 +53,10 @@ fetch('./config.json').then(function(response) {
       { name: "ASSESS", color: "#c7ba00" },
       { name: "HOLD", color: "#e09b96" }
     ],
-    entries: data.entries
+    entries: technologies.map(TechnologyMapping.toRadarEntry)
   });
 }).catch(function(err) {
-  console.log('Error loading config.json', err);
+  console.log('Error loading radar data', err);
 });
 </script>
 

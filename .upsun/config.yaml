@@ -1,32 +1,41 @@
 # Upsun configuration for the Tech Radar.
-# The radar is a static site, so Upsun's web server serves the `docs/`
-# directory directly. No build step, services or runtime process is needed.
+# A Node.js (Express) server serves the `docs/` front end and the
+# `/api/technologies` endpoint, backed by a PostgreSQL service.
 applications:
   tech-radar:
-    # A runtime image is required even for static sites; Node keeps the option
-    # of running `yarn lint` in a build hook later.
     type: 'nodejs:22'
 
     build:
       flavor: none
 
+    relationships:
+      database:
+        service: database
+        endpoint: postgresql
+
+    hooks:
+      build: |
+        set -e
+        npm ci --omit=dev
+      # Create the schema (idempotent), then seed it only if the table is empty.
+      deploy: |
+        set -e
+        node db/migrate.js
+        node db/seed.js
+
     web:
       commands:
-        # Documented Upsun pattern for purely static applications.
-        start: sleep infinity
+        start: node server/index.js
       locations:
         '/':
-          root: 'docs'
-          passthru: false
-          index:
-            - index.html
-          scripts: false
-          allow: true
-          # Short cache lifetime so updates to config.json show up quickly.
-          expires: 5m
+          passthru: true
           headers:
             X-Frame-Options: SAMEORIGIN
             X-Content-Type-Options: nosniff
+
+services:
+  database:
+    type: 'postgresql:16'
 
 routes:
   "https://{default}/":

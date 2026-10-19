@@ -1,0 +1,37 @@
+# Upsun configuration for the Tech Radar.
+# The radar is a static site, so Upsun's web server serves the `docs/`
+# directory directly. No build step, services or runtime process is needed.
+applications:
+  tech-radar:
+    # A runtime image is required even for static sites; Node keeps the option
+    # of running `yarn lint` in a build hook later.
+    type: 'nodejs:22'
+
+    build:
+      flavor: none
+
+    web:
+      commands:
+        # Documented Upsun pattern for purely static applications.
+        start: sleep infinity
+      locations:
+        '/':
+          root: 'docs'
+          passthru: false
+          index:
+            - index.html
+          scripts: false
+          allow: true
+          # Short cache lifetime so updates to config.json show up quickly.
+          expires: 5m
+          headers:
+            X-Frame-Options: SAMEORIGIN
+            X-Content-Type-Options: nosniff
+
+routes:
+  "https://{default}/":
+    type: upstream
+    upstream: "tech-radar:http"
+  "https://www.{default}/":
+    type: redirect
+    to: "https://{default}/"

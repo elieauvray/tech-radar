@@ -2,9 +2,20 @@
 
 const { compareTechnologies } = require('../docs/technology-mapping');
 
-async function listTechnologies(pool) {
+// List technologies ordered by number. When `status` is given it must already
+// be a valid upper-case status (the column is a Postgres ENUM); only
+// technologies with that status are returned.
+async function listTechnologies(pool, status) {
+  if (status === undefined) {
+    const { rows } = await pool.query(
+      'SELECT number, title, description, type, status, trend FROM technologies ORDER BY number'
+    );
+    return rows;
+  }
   const { rows } = await pool.query(
-    'SELECT number, title, description, type, status, trend FROM technologies ORDER BY number'
+    'SELECT number, title, description, type, status, trend FROM technologies ' +
+      'WHERE status = $1 ORDER BY number',
+    [status]
   );
   return rows;
 }

@@ -102,6 +102,12 @@ Express server (`server/`) serves the front end in `docs/` and exposes
 `type` / `status` / `trend` to quadrant / ring / moved lives in
 `docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.
 
+Other tools can read the radar content from the same endpoint:
+`GET /api/technologies` returns a JSON array of
+`{ number, title, description, type, status, trend }` objects ordered by
+`number`. It takes no query parameters (for example `?status=` is ignored and
+the full list is returned), and `docs/config.json` no longer holds the entries.
+
 `POST /api/technologies` adds a technology from the page's "Add a technology"
 form. The JSON body holds `title` (1–60 characters), `description` (1–280
 characters), `type`, `status` and `trend` (one of the values in

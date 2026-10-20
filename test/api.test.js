@@ -72,6 +72,22 @@ test('GET /api/technologies returns all technologies in order', async () => {
   });
 });
 
+test('GET /api/technologies ignores query parameters such as ?status=', async () => {
+  let calls = 0;
+  const listTechnologies = async (...args) => {
+    calls += 1;
+    assert.deepEqual(args, []);
+    return ROWS;
+  };
+  await withServer({ listTechnologies }, async (base) => {
+    const res = await fetch(`${base}/api/technologies?status=ADOPT&foo=bar`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type'), /application\/json/);
+    assert.deepEqual(await res.json(), ROWS);
+    assert.equal(calls, 1);
+  });
+});
+
 test('GET /api/technologies returns 500 when the database fails', async () => {
   await withSilencedConsoleError(async () => {
     await withServer({ listTechnologies: async () => { throw new Error('connection refused'); } }, async (base) => {

@@ -3,13 +3,10 @@
 const path = require('path');
 const express = require('express');
 const { validateTechnology } = require('../docs/technology-validation');
-const TechnologyMapping = require('../docs/technology-mapping');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
 const MAX_INT4 = 2147483647;
-
-const ALLOWED_STATUSES = Object.keys(TechnologyMapping.STATUSES);
 
 // Build the Express app. `listTechnologies`, `createTechnology` and
 // `deleteTechnology` are injected so tests can replace the database with a fake.
@@ -23,25 +20,9 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
     next();
   });
 
-  // Optional `status` query parameter (case-insensitive) restricts the list to
-  // one status. Without it the full list is returned.
   app.get('/api/technologies', async (req, res) => {
-    let status;
-    if (req.query.status !== undefined) {
-      const raw = req.query.status;
-      // A repeated or nested parameter arrives as an array or object: invalid.
-      status = typeof raw === 'string' ? raw.toUpperCase() : null;
-      if (status === null || !ALLOWED_STATUSES.includes(status)) {
-        res.status(400).json({
-          errors: { status: `Status must be one of: ${ALLOWED_STATUSES.join(', ')}` },
-        });
-        return;
-      }
-    }
     try {
-      const technologies = status === undefined
-        ? await listTechnologies()
-        : await listTechnologies(status);
+      const technologies = await listTechnologies();
       res.json(technologies);
     } catch (err) {
       console.error('Failed to list technologies', err);

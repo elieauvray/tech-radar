@@ -3,7 +3,6 @@
 const path = require('path');
 const express = require('express');
 const { validateTechnology } = require('../docs/technology-validation');
-const { STATUSES } = require('../docs/technology-mapping');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
@@ -11,7 +10,6 @@ const MAX_INT4 = 2147483647;
 
 // Build the Express app. `listTechnologies`, `createTechnology` and
 // `deleteTechnology` are injected so tests can replace the database with a fake.
-// `listTechnologies(status)` receives an upper-case status, or undefined for all.
 function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
   const app = express();
   app.disable('x-powered-by');
@@ -23,21 +21,8 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
   });
 
   app.get('/api/technologies', async (req, res) => {
-    // Optional case-insensitive `status` filter. Anything that is not a string
-    // naming a known status (empty, repeated or nested values included) is a 400.
-    let status;
-    if (req.query.status !== undefined) {
-      const upper = typeof req.query.status === 'string' ? req.query.status.toUpperCase() : '';
-      if (!Object.prototype.hasOwnProperty.call(STATUSES, upper)) {
-        res.status(400).json({
-          errors: { status: `Status must be one of: ${Object.keys(STATUSES).join(', ')}` },
-        });
-        return;
-      }
-      status = upper;
-    }
     try {
-      const technologies = await listTechnologies(status);
+      const technologies = await listTechnologies();
       res.json(technologies);
     } catch (err) {
       console.error('Failed to list technologies', err);

@@ -36,7 +36,7 @@ function fakeQueryPool(rows) {
   return { pool, queries };
 }
 
-test('listTechnologies without a status runs the unfiltered query', async () => {
+test('listTechnologies runs the ordered query', async () => {
   const rows = [{ number: 1 }];
   const { pool, queries } = fakeQueryPool(rows);
   assert.equal(await listTechnologies(pool), rows);
@@ -46,19 +46,6 @@ test('listTechnologies without a status runs the unfiltered query', async () => 
     'SELECT number, title, description, type, status, trend FROM technologies ORDER BY number'
   );
   assert.equal(queries[0].params, undefined);
-});
-
-test('listTechnologies with a status filters with a bound parameter, ordered by number', async () => {
-  const rows = [{ number: 1, status: 'ADOPT' }];
-  const { pool, queries } = fakeQueryPool(rows);
-  assert.equal(await listTechnologies(pool, 'ADOPT'), rows);
-  assert.equal(queries.length, 1);
-  assert.equal(
-    queries[0].sql,
-    'SELECT number, title, description, type, status, trend FROM technologies ' +
-      'WHERE status = $1 ORDER BY number'
-  );
-  assert.deepEqual(queries[0].params, ['ADOPT']);
 });
 
 test('deleteTechnology deletes, renumbers later rows and realigns the sequence', async () => {

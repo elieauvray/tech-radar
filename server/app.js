@@ -2,10 +2,7 @@
 
 const path = require('path');
 const express = require('express');
-const TechnologyMapping = require('../docs/technology-mapping');
 const { validateTechnology } = require('../docs/technology-validation');
-
-const STATUS_VALUES = Object.keys(TechnologyMapping.STATUSES);
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
@@ -23,25 +20,10 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
     next();
   });
 
-  // Optional `status` filter (case-insensitive). Without it the list is
-  // unfiltered; a present but unknown value is rejected before any DB access.
+  // List every technology, ordered by number. Query parameters are ignored.
   app.get('/api/technologies', async (req, res) => {
-    const requested = req.query.status;
-    let status;
-    if (requested !== undefined) {
-      const canonical = typeof requested === 'string' ? requested.toUpperCase() : null;
-      if (!STATUS_VALUES.includes(canonical)) {
-        res.status(400).json({
-          errors: { status: `Status must be one of: ${STATUS_VALUES.join(', ')}` },
-        });
-        return;
-      }
-      status = canonical;
-    }
     try {
-      const technologies = status === undefined
-        ? await listTechnologies()
-        : await listTechnologies(status);
+      const technologies = await listTechnologies();
       res.json(technologies);
     } catch (err) {
       console.error('Failed to list technologies', err);

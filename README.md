@@ -98,9 +98,6 @@ The radar entries are stored in a PostgreSQL `technologies` table
 (`number`, `title`, `description`, `type`, `status`, `trend`). A small
 Express server (`server/`) serves the front end in `docs/` and exposes
 `GET /api/technologies`, which returns every technology ordered by `number`.
-An optional `status` query parameter (`ADOPT`, `TRIAL`, `ASSESS` or `HOLD`,
-case-insensitive) returns only the technologies with that status, still ordered
-by `number`; any other value returns `400` with the list of allowed values.
 `docs/index.html` builds the radar from that endpoint; the mapping from
 `type` / `status` / `trend` to quadrant / ring / moved lives in
 `docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.

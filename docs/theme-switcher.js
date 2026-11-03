@@ -16,13 +16,16 @@
 
   // Options merged into the radar_visualization() config, per theme.
   // "societe-generale" holds the values the radar always had.
-  // "upsun" is an approximation of the upsun.com look: dark, rounded, purple accent.
+  // "upsun" is an approximation of the upsun.com look: dark, rounded, purple accent,
+  // with a simplified Upsun logo in the header.
+  // "title" is also the accessible label of the header logo, so each theme has its own.
   var RADAR_OPTIONS = {
     "societe-generale": {
       colors: { background: "#fff", grid: "#dddde0", inactive: "#ddd" },
       font_family: "Arial, Helvetica",
       ring_colors: ["#5ba300", "#009eb0", "#c7ba00", "#e09b96"],
       title_banner: { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" },
+      title: "Société Générale Tech Radar",
       title_logo: { url: "images/societe-generale-logo.svg", width: 198, height: 39 },
       title_suffix: "Tech Radar"
     },
@@ -38,8 +41,9 @@
       font_family: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
       ring_colors: ["#1f9d55", "#7c66ff", "#d98e04", "#e5484d"],
       title_banner: { height: 51, from: "#6046ff", to: "#6046ff", text_color: "#fff" },
-      title_logo: null,
-      title_suffix: ""
+      title: "Upsun Tech Radar",
+      title_logo: { url: "images/upsun-logo.svg", width: 140, height: 39 },
+      title_suffix: "Tech Radar"
     }
   };
 

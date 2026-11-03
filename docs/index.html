@@ -13,11 +13,19 @@
 <script src="technology-mapping.js"></script>
 <script src="technology-filters.js"></script>
 <script src="technology-validation.js"></script>
+<script src="theme-switcher.js"></script>
+<script>
+// set the saved theme before the first paint, to avoid a flash of the wrong look
+document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
+</script>
 
 <link rel="stylesheet" href="radar.css">
+<link rel="stylesheet" href="theme-upsun.css">
 </head>
 
 <body>
+
+<button type="button" id="theme-toggle" class="theme-toggle-btn" aria-pressed="false">Theme</button>
 
 <div class="radar-container">
 <svg id="radar"></svg>
@@ -114,12 +122,21 @@ function fetchJson(url) {
   });
 }
 
+// the look and feel in use, also set as data-theme on <html> (see the head script)
+var currentTheme = ThemeSwitcher.normalizeTheme(document.documentElement.getAttribute('data-theme'));
+
 function render() {
+  // colours, font, ring colours, title banner and logo of the current theme
+  var theme = ThemeSwitcher.radarOptions(currentTheme);
+  var ringNames = ["ADOPT", "TRIAL", "ASSESS", "HOLD"];
   radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
     title: "Société Générale Tech Radar",
-    title_logo: { url: "images/societe-generale-logo.svg", width: 198, height: 39 },
-    title_suffix: "Tech Radar",
+    title_logo: theme.title_logo,
+    title_suffix: theme.title_suffix,
+    title_banner: theme.title_banner,
+    colors: theme.colors,
+    font_family: theme.font_family,
     date: configData.date,
     quadrants: [
       { name: "Language" },
@@ -127,12 +144,9 @@ function render() {
       { name: "Datastores" },
       { name: "Data Management" },
     ],
-    rings: [
-      { name: "ADOPT", color: "#5ba300" },
-      { name: "TRIAL", color: "#009eb0" },
-      { name: "ASSESS", color: "#c7ba00" },
-      { name: "HOLD", color: "#e09b96" }
-    ],
+    rings: ringNames.map(function(name, i) {
+      return { name: name, color: theme.ring_colors[i] };
+    }),
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
@@ -143,6 +157,26 @@ function render() {
   });
   applyFilters();
 }
+
+// ---- Theme switch ----
+var themeToggle = document.getElementById('theme-toggle');
+
+function syncThemeToggle() {
+  var next = ThemeSwitcher.nextTheme(currentTheme);
+  themeToggle.setAttribute('aria-pressed', currentTheme === 'upsun' ? 'true' : 'false');
+  themeToggle.title = 'Switch to the ' + (next === 'upsun' ? 'Upsun' : 'Société Générale') + ' look';
+}
+
+themeToggle.addEventListener('click', function() {
+  currentTheme = ThemeSwitcher.nextTheme(currentTheme);
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  ThemeSwitcher.saveTheme(currentTheme);
+  syncThemeToggle();
+  // before the data is loaded, the first render will use the new theme
+  if (configData) render();
+});
+
+syncThemeToggle();
 
 function loadAndRender() {
   return Promise.all([

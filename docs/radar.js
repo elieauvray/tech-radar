@@ -219,6 +219,8 @@ function radar_visualization(config) {
 
   var svg = d3.select("svg#" + config.svg_id)
     .style("background-color", config.colors.background)
+    // optional colour of the text drawn without an explicit fill (legend, footer)
+    .style("fill", config.colors.text || null)
     .attr("width", scaled_width)
     .attr("height", (config.height + header_gap) * config.scale);
 
@@ -385,7 +387,7 @@ function radar_visualization(config) {
       .text(config.date || "")
       .style("font-family", config.font_family)
       .style("font-size", "14")
-      .style("fill", "#999")
+      .style("fill", config.colors.date || "#999")  // optional colors.date
 
     // footer
     radar.append("text")
@@ -513,14 +515,14 @@ function radar_visualization(config) {
   bubble.append("rect")
     .attr("rx", 4)
     .attr("ry", 4)
-    .style("fill", "#333");
+    .style("fill", config.colors.tooltip || "#333");  // optional colors.tooltip
   bubble.append("text")
     .style("font-family", config.font_family)
     .style("font-size", "10px")
     .style("fill", "#fff");
   bubble.append("path")
     .attr("d", "M 0,0 10,0 5,8 z")
-    .style("fill", "#333");
+    .style("fill", config.colors.tooltip || "#333");
 
   function showBubble(d) {
     if (d.active || config.print_layout) {

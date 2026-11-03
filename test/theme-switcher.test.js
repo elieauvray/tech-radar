@@ -85,6 +85,19 @@ test('the logo file of each theme exists under docs/', () => {
   }
 });
 
+test('the page title is "Tech Radar"', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'docs', 'index.html'), 'utf8');
+  assert.match(html, /<title>Tech Radar<\/title>/);
+});
+
+test('the favicon is the Upsun icon', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'docs', 'index.html'), 'utf8');
+  assert.match(html, /<link rel="icon"[^>]*href="images\/favicon\.svg"/);
+  const favicon = fs.readFileSync(path.join(__dirname, '..', 'docs', 'images', 'favicon.svg'), 'utf8');
+  assert.match(favicon, /#6046ff/i);
+  assert.doesNotMatch(favicon, /Soci[ée]t[ée]/i);
+});
+
 test('an unknown theme gets the default options', () => {
   assert.deepEqual(themes.radarOptions('nope'), themes.radarOptions('societe-generale'));
 });

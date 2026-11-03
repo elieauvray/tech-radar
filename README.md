@@ -55,6 +55,11 @@ radar_visualization({
   // Optional: gradient band behind the title. `width` defaults to reaching the
   // right edge of the radar; set `title_banner: null` to disable the band.
   // title_banner: { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" },
+  // Optional: blurred glow behind the title instead of a banner (disabled by
+  // default; set `title_banner: null` too, as the banner wins when both are set).
+  // It starts away from the logo,
+  // so the logo is not blurred. `width` defaults to reaching the right edge.
+  // title_blur: { color: "#6046ff", radius: 12, height: 51, text_color: "#fff" },
   quadrants: [
     { name: "Bottom Right" },
     { name: "Bottom Left" },
@@ -128,10 +133,13 @@ The "Theme" button at the bottom left of the page switches between the
 choice is saved in the browser's `localStorage` (`radar-theme`) and restored on
 the next visit. The radar's colours are set inline by d3, so each theme is a set
 of options for `radar_visualization()` defined in `docs/theme-switcher.js`
-(`colors`, `font_family`, `ring_colors`, `title_banner`, `title`, `title_logo`
-and `title_suffix`). Both themes draw a logo in the header followed by the
-`title_suffix` banner: `docs/images/societe-generale-logo.svg` and the Upsun
-mark in `docs/images/upsun-logo.svg` (drawn in white to read on the purple banner). Each theme has its own `title`, which is the
+(`colors`, `font_family`, `ring_colors`, `title_banner`, `title_blur`, `title`,
+`title_logo` and `title_suffix`). Both themes draw a logo in the header followed
+by the `title_suffix` text: `docs/images/societe-generale-logo.svg` and the
+Upsun mark in `docs/images/upsun-logo.svg` (drawn in white to read on the dark
+background). The Société Générale theme puts the text on a gradient banner; the
+Upsun theme has no banner and draws a purple blur behind the text instead, kept
+away from the logo so that the logo stays sharp. Each theme has its own `title`, which is the
 logo's accessible label; `colors` may also hold the optional `text`, `date` and
 `tooltip` keys. The page around the radar is restyled by `docs/theme-upsun.css`,
 whose rules are all scoped under `html[data-theme="upsun"]`. To add a theme, add

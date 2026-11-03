@@ -17,7 +17,8 @@
   // Options merged into the radar_visualization() config, per theme.
   // "societe-generale" holds the values the radar always had.
   // "upsun" is an approximation of the upsun.com look: dark, rounded, purple accent,
-  // with a simplified Upsun logo in the header.
+  // with a simplified Upsun logo in the header, next to a purple blur behind the title.
+  // Its title_banner is explicitly null, otherwise the radar would draw its default banner.
   // "title" is also the accessible label of the header logo, so each theme has its own.
   var RADAR_OPTIONS = {
     "societe-generale": {
@@ -40,7 +41,8 @@
       },
       font_family: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
       ring_colors: ["#1f9d55", "#7c66ff", "#d98e04", "#e5484d"],
-      title_banner: { height: 51, from: "#6046ff", to: "#6046ff", text_color: "#fff" },
+      title_banner: null,
+      title_blur: { color: "#6046ff", radius: 12, height: 51, text_color: "#fff" },
       title: "Upsun Tech Radar",
       title_logo: { url: "images/upsun-logo.svg", width: 36, height: 36 },
       title_suffix: "Tech Radar"

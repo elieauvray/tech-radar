@@ -109,7 +109,7 @@ function fetchJson(url) {
 var currentTheme = ThemeSwitcher.normalizeTheme(document.documentElement.getAttribute('data-theme'));
 
 function render() {
-  // colours, font, ring colours, title banner and logo of the current theme
+  // colours, font, ring colours, title banner or blur, and logo of the current theme
   var theme = ThemeSwitcher.radarOptions(currentTheme);
   var ringNames = ["ADOPT", "TRIAL", "ASSESS", "HOLD"];
   radar_visualization({
@@ -118,6 +118,7 @@ function render() {
     title_logo: theme.title_logo,
     title_suffix: theme.title_suffix,
     title_banner: theme.title_banner,
+    title_blur: theme.title_blur,
     colors: theme.colors,
     font_family: theme.font_family,
     date: configData.date,

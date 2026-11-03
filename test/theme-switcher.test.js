@@ -53,7 +53,7 @@ test('the Société Générale options are the values the radar always had', () 
   });
 });
 
-test('the Upsun options have valid colours, four rings and a flat banner', () => {
+test('the Upsun options have valid colours, four rings and a blurred header', () => {
   const options = themes.radarOptions('upsun');
   for (const color of Object.values(options.colors)) {
     assert.match(color, HEX);
@@ -63,10 +63,11 @@ test('the Upsun options have valid colours, four rings and a flat banner', () =>
     assert.match(color, HEX);
   }
   assert.ok(options.font_family.length > 0);
-  assert.ok(options.title_banner.height > 0);
-  assert.match(options.title_banner.from, HEX);
-  assert.equal(options.title_banner.from, options.title_banner.to);
-  assert.match(options.title_banner.text_color, HEX);
+  assert.equal(options.title_banner, null);
+  assert.match(options.title_blur.color, HEX);
+  assert.ok(options.title_blur.radius > 0);
+  assert.ok(options.title_blur.height > 0);
+  assert.match(options.title_blur.text_color, HEX);
   assert.equal(options.title, 'Upsun Tech Radar');
   assert.equal(options.title_logo.url, 'images/upsun-logo.svg');
   assert.ok(options.title_logo.width > 0);

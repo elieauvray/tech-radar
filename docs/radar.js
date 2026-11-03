@@ -47,6 +47,8 @@ function radar_visualization(config) {
   config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
   var default_title_banner = { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };  // width defaults to reaching the right edge
   config.title_banner = ("title_banner" in config) ? (config.title_banner ? Object.assign({}, default_title_banner, config.title_banner) : null) : default_title_banner;  // optional gradient band behind the title, null to disable
+  var default_title_blur = { color: "#6046ff", radius: 12, height: 51, text_color: "#fff" };  // width defaults to reaching the right edge
+  config.title_blur = config.title_blur ? Object.assign({}, default_title_blur, config.title_blur) : null;  // optional blurred glow behind the title, null to disable (ignored when title_banner is set)
   config.header_gap = ("header_gap" in config) ? config.header_gap : 40;  // vertical space between the title header and the radar
   config.footer_offset = config.footer_offset || { x: -155, y: 450 };
   config.legend_column_width = config.legend_column_width || 140
@@ -318,8 +320,34 @@ function radar_visualization(config) {
     var banner_x = config.title_logo ? config.title_logo.width + 10 : 0;
     var banner_padding = 16;
     var banner_y = -36;
-    var title_x = banner ? banner_x + banner_padding : banner_x;
-    var title_color = banner ? banner.text_color : null;
+    // optional blurred glow behind the title text (the logo stays outside of it); the banner wins if both are set
+    var blur = banner ? null : config.title_blur;
+    var header_band = banner || blur;
+    var title_x = header_band ? banner_x + banner_padding : banner_x;
+    var title_color = header_band ? header_band.text_color : null;
+    if (blur) {
+      // the glow starts away from the logo so that the blur fades out before reaching it
+      var blur_inset = blur.radius * 2.5;
+      var blur_x = banner_x + blur_inset;
+      var blur_width = blur.width || Math.max(0, config.width / 2 - (config.title_offset.x + blur_x) - blur_inset);
+      var blur_id = `${config.svg_id}-title-blur`;
+      title_link.append("defs")
+        .append("filter")
+        .attr("id", blur_id)
+        .attr("x", "-50%")
+        .attr("y", "-150%")
+        .attr("width", "200%")
+        .attr("height", "400%")
+        .append("feGaussianBlur")
+        .attr("stdDeviation", blur.radius);
+      title_link.append("rect")
+        .attr("x", blur_x)
+        .attr("y", banner_y)
+        .attr("width", blur_width)
+        .attr("height", blur.height)
+        .style("fill", blur.color)
+        .attr("filter", `url(#${blur_id})`);
+    }
     if (banner) {
       // by default the band stretches to the right edge of the svg
       var banner_width = banner.width || Math.max(0, config.width / 2 - (config.title_offset.x + banner_x));
@@ -380,7 +408,7 @@ function radar_visualization(config) {
     }
 
     // date (moved below the banner when it is enabled)
-    var date_dy = banner ? banner_y + banner.height + 19 : 20;
+    var date_dy = header_band ? banner_y + header_band.height + 19 : 20;
     radar
       .append("text")
       .attr("transform", translate(config.title_offset.x, config.title_offset.y - header_gap + date_dy))

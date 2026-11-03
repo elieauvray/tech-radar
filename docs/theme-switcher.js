@@ -42,7 +42,7 @@
       ring_colors: ["#1f9d55", "#7c66ff", "#d98e04", "#e5484d"],
       title_banner: { height: 51, from: "#6046ff", to: "#6046ff", text_color: "#fff" },
       title: "Upsun Tech Radar",
-      title_logo: { url: "images/upsun-logo.svg", width: 140, height: 39 },
+      title_logo: { url: "images/upsun-logo.svg", width: 36, height: 36 },
       title_suffix: "Tech Radar"
     }
   };

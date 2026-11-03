@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Société Générale">
-  <title>Société Générale</title>
-  <!-- Simplified Société Générale mark: red square over black square with a white bar -->
-  <rect x="0" y="0" width="32" height="16" fill="#e9041e"/>
-  <rect x="0" y="16" width="32" height="16" fill="#000000"/>
-  <rect x="4" y="14.5" width="24" height="3" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Upsun">
+  <title>Upsun</title>
+  <!-- Simplified Upsun mark: purple rounded square with a lime sun over a white horizon -->
+  <rect x="0" y="0" width="32" height="32" rx="8" fill="#6046ff"/>
+  <circle cx="16" cy="14.5" r="6.2" fill="#c6f03c"/>
+  <rect x="6" y="19.5" width="20" height="2.7" rx="1.35" fill="#ffffff"/>
 </svg>

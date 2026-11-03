@@ -121,6 +121,21 @@ no technology has that number.
 - `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
 - `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data. Numbers are reused after a delete (later technologies shift down), but the seed never runs again once the table has been used, even if every technology is deleted.
 
+### Look and feel
+
+The "Theme" button at the bottom left of the page switches between the
+`societe-generale` look (the default) and a more modern `upsun` look. The
+choice is saved in the browser's `localStorage` (`radar-theme`) and restored on
+the next visit. The radar's colours are set inline by d3, so each theme is a set
+of options for `radar_visualization()` defined in `docs/theme-switcher.js`
+(`colors`, `font_family`, `ring_colors`, `title_banner`, `title_logo` and
+`title_suffix`); `colors` may also hold the optional `text`, `date` and
+`tooltip` keys. The page around the radar is restyled by `docs/theme-upsun.css`,
+whose rules are all scoped under `html[data-theme="upsun"]`. To add a theme, add
+its name to `THEMES` and its options to `RADAR_OPTIONS` in
+`docs/theme-switcher.js`, then add a stylesheet scoped by its `data-theme`
+value. The Upsun palette is an approximation of upsun.com.
+
 ## Deployment
 
 ### Deploying on Upsun

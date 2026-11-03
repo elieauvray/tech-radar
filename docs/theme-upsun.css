@@ -1,0 +1,161 @@
+/*
+ * Upsun-style look and feel: dark, rounded, purple and lime accents.
+ * Every rule is scoped under html[data-theme="upsun"], so nothing changes
+ * for the default Société Générale look. The radar drawing itself is themed
+ * through ThemeSwitcher.radarOptions() (d3 sets its colours inline).
+ */
+html[data-theme="upsun"] {
+  --upsun-bg: #0b0b1e;
+  --upsun-surface: #14142b;
+  --upsun-border: #2d2d4a;
+  --upsun-text: #e6e6f2;
+  --upsun-muted: #9a9ab8;
+  --upsun-purple: #6046ff;
+  --upsun-purple-light: #7c66ff;
+  --upsun-lime: #d4ff3f;
+  --upsun-danger: #e5484d;
+  --upsun-font: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--upsun-bg);
+}
+
+html[data-theme="upsun"] body {
+  background: var(--upsun-bg);
+  color: var(--upsun-text);
+  font-family: var(--upsun-font);
+}
+
+/* "Add a technology" button: lime pill on the title band */
+html[data-theme="upsun"] .add-technology-btn {
+  border-radius: 999px;
+  background: var(--upsun-lime);
+  color: var(--upsun-bg);
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .add-technology-btn:hover,
+html[data-theme="upsun"] .add-technology-btn:focus {
+  background: #e6ff85;
+}
+html[data-theme="upsun"] .add-technology-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Type / Status filters */
+html[data-theme="upsun"] .radar-filters {
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .radar-filter select {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(11, 11, 30, 0.55);
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .radar-filter option {
+  color: var(--upsun-text);
+  background: var(--upsun-surface);
+}
+html[data-theme="upsun"] .radar-filters-summary {
+  color: var(--upsun-muted);
+}
+html[data-theme="upsun"] .filter-reset {
+  color: var(--upsun-lime);
+}
+html[data-theme="upsun"] .filter-reset:hover,
+html[data-theme="upsun"] .filter-reset:focus {
+  color: #e6ff85;
+}
+
+/* modals */
+html[data-theme="upsun"] .modal-backdrop {
+  background: rgba(5, 5, 15, 0.7);
+}
+html[data-theme="upsun"] .modal {
+  border: 1px solid var(--upsun-border);
+  border-radius: 16px;
+  background: var(--upsun-surface);
+  color: var(--upsun-text);
+  font-family: var(--upsun-font);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+html[data-theme="upsun"] .modal-close {
+  color: var(--upsun-muted);
+}
+html[data-theme="upsun"] .modal-close:hover,
+html[data-theme="upsun"] .modal-close:focus-visible {
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .field input,
+html[data-theme="upsun"] .field textarea,
+html[data-theme="upsun"] .field select {
+  border: 1px solid var(--upsun-border);
+  border-radius: 8px;
+  background: var(--upsun-bg);
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .field input:focus-visible,
+html[data-theme="upsun"] .field textarea:focus-visible,
+html[data-theme="upsun"] .field select:focus-visible {
+  outline: 2px solid var(--upsun-purple-light);
+  outline-offset: 1px;
+}
+html[data-theme="upsun"] .field-error,
+html[data-theme="upsun"] .form-error {
+  color: #ff7b80;
+}
+html[data-theme="upsun"] .char-counter {
+  color: var(--upsun-muted);
+}
+html[data-theme="upsun"] .char-counter.over {
+  color: #ff7b80;
+}
+html[data-theme="upsun"] .modal-actions button {
+  border: 1px solid var(--upsun-border);
+  border-radius: 999px;
+  padding: 7px 18px;
+  background: transparent;
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .modal-actions button:hover:not(:disabled) {
+  background: var(--upsun-border);
+}
+html[data-theme="upsun"] .modal-actions button[type="submit"] {
+  border-color: var(--upsun-purple);
+  background: var(--upsun-purple);
+  color: #fff;
+}
+html[data-theme="upsun"] .modal-actions button[type="submit"]:hover:not(:disabled) {
+  background: var(--upsun-purple-light);
+}
+html[data-theme="upsun"] .modal-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+html[data-theme="upsun"] .modal-actions .danger-btn {
+  border-color: var(--upsun-danger);
+  background: var(--upsun-danger);
+  color: #fff;
+}
+html[data-theme="upsun"] .modal-actions .danger-btn:hover:not(:disabled) {
+  border-color: #c9363b;
+  background: #c9363b;
+}
+html[data-theme="upsun"] .details-list dt {
+  color: var(--upsun-muted);
+}
+
+/* theme switch button */
+html[data-theme="upsun"] .theme-toggle-btn {
+  border: 1px solid var(--upsun-purple-light);
+  background: var(--upsun-purple);
+  color: #fff;
+  font-family: var(--upsun-font);
+  box-shadow: 0 4px 16px rgba(96, 70, 255, 0.45);
+}
+html[data-theme="upsun"] .theme-toggle-btn:hover {
+  background: var(--upsun-purple-light);
+}
+html[data-theme="upsun"] .theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--upsun-lime);
+  outline-offset: 2px;
+}

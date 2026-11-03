@@ -42,6 +42,33 @@ li {
   background: #f2f2f2;
 }
 
+/* theme switch button, fixed at the bottom left of the viewport (below the modals) */
+.theme-toggle-btn {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 900;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #ccc;
+  border-radius: 18px;
+  background: #fff;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.theme-toggle-btn:hover {
+  background: #f2f2f2;
+}
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid #e9041e;
+  outline-offset: 2px;
+}
+
 /* Type / Status filters, centred on the gradient header band (y 44-95) */
 .radar-filters {
   position: absolute;

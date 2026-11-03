@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const themes = require('../docs/theme-switcher.js');
 
 const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
@@ -45,6 +47,7 @@ test('the Société Générale options are the values the radar always had', () 
     font_family: 'Arial, Helvetica',
     ring_colors: ['#5ba300', '#009eb0', '#c7ba00', '#e09b96'],
     title_banner: { height: 51, from: '#000000', to: '#e9041e', text_color: '#fff' },
+    title: 'Société Générale Tech Radar',
     title_logo: { url: 'images/societe-generale-logo.svg', width: 198, height: 39 },
     title_suffix: 'Tech Radar'
   });
@@ -64,8 +67,22 @@ test('the Upsun options have valid colours, four rings and a flat banner', () =>
   assert.match(options.title_banner.from, HEX);
   assert.equal(options.title_banner.from, options.title_banner.to);
   assert.match(options.title_banner.text_color, HEX);
-  assert.equal(options.title_logo, null);
-  assert.equal(options.title_suffix, '');
+  assert.equal(options.title, 'Upsun Tech Radar');
+  assert.equal(options.title_logo.url, 'images/upsun-logo.svg');
+  assert.ok(options.title_logo.width > 0);
+  assert.ok(options.title_logo.height > 0);
+  assert.equal(options.title_suffix, 'Tech Radar');
+});
+
+test('the Upsun title does not mention Société Générale', () => {
+  assert.doesNotMatch(themes.radarOptions('upsun').title, /Soci[ée]t[ée]/i);
+});
+
+test('the logo file of each theme exists under docs/', () => {
+  for (const theme of themes.THEMES) {
+    const logo = themes.radarOptions(theme).title_logo;
+    assert.ok(fs.existsSync(path.join(__dirname, '..', 'docs', logo.url)), theme);
+  }
 });
 
 test('an unknown theme gets the default options', () => {

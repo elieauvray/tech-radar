@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="39" viewBox="0 0 140 39" role="img" aria-label="Upsun">
+  <title>Upsun</title>
+  <!-- Simplified Upsun mark: purple rounded square with a lime sun over a white horizon -->
+  <rect x="0" y="1.5" width="36" height="36" rx="9" fill="#6046ff"/>
+  <circle cx="18" cy="17" r="7" fill="#c6f03c"/>
+  <rect x="7" y="22" width="22" height="3" rx="1.5" fill="#ffffff"/>
+  <!-- Wordmark -->
+  <text x="46" y="26" font-family="Helvetica, Arial, sans-serif" font-size="20" font-weight="bold" letter-spacing="1" fill="#ffffff">UPSUN</text>
+</svg>

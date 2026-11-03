@@ -48,6 +48,19 @@ test('listTechnologies runs the ordered query', async () => {
   assert.equal(queries[0].params, undefined);
 });
 
+test('listTechnologies filters by status with a parameterised query', async () => {
+  const rows = [{ number: 2 }];
+  const { pool, queries } = fakeQueryPool(rows);
+  assert.equal(await listTechnologies(pool, 'ADOPT'), rows);
+  assert.equal(queries.length, 1);
+  assert.equal(
+    queries[0].sql,
+    'SELECT number, title, description, type, status, trend FROM technologies ' +
+      'WHERE status = $1 ORDER BY number'
+  );
+  assert.deepEqual(queries[0].params, ['ADOPT']);
+});
+
 test('deleteTechnology deletes, renumbers later rows and realigns the sequence', async () => {
   const { pool, queries, state } = fakePool((sql) => (
     sql.startsWith('DELETE') ? { rows: [{ number: 10 }] } : { rows: [] }

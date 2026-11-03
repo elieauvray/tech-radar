@@ -40,32 +40,6 @@ html[data-theme="upsun"] .add-technology-btn:focus-visible {
   outline-offset: 2px;
 }
 
-/* Type / Status filters */
-html[data-theme="upsun"] .radar-filters {
-  font-family: var(--upsun-font);
-}
-html[data-theme="upsun"] .radar-filter select {
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 999px;
-  padding: 0 12px;
-  background: rgba(11, 11, 30, 0.55);
-  font-family: var(--upsun-font);
-}
-html[data-theme="upsun"] .radar-filter option {
-  color: var(--upsun-text);
-  background: var(--upsun-surface);
-}
-html[data-theme="upsun"] .radar-filters-summary {
-  color: var(--upsun-muted);
-}
-html[data-theme="upsun"] .filter-reset {
-  color: var(--upsun-lime);
-}
-html[data-theme="upsun"] .filter-reset:hover,
-html[data-theme="upsun"] .filter-reset:focus {
-  color: #e6ff85;
-}
-
 /* modals */
 html[data-theme="upsun"] .modal-backdrop {
   background: rgba(5, 5, 15, 0.7);

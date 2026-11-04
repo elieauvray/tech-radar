@@ -3,7 +3,6 @@
 const path = require('path');
 const express = require('express');
 const { validateTechnology } = require('../docs/technology-validation');
-const { STATUSES } = require('../docs/technology-mapping');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
@@ -21,23 +20,10 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
     next();
   });
 
-  // List technologies, ordered by number. The optional `status` query
-  // parameter (case-insensitive) keeps only the technologies with that status.
+  // List all technologies, ordered by number.
   app.get('/api/technologies', async (req, res) => {
-    const rawStatus = req.query.status;
-    let status;
-    if (rawStatus !== undefined) {
-      const upper = typeof rawStatus === 'string' ? rawStatus.toUpperCase() : '';
-      if (!Object.prototype.hasOwnProperty.call(STATUSES, upper)) {
-        res.status(400).json({
-          errors: { status: `Status must be one of: ${Object.keys(STATUSES).join(', ')}` },
-        });
-        return;
-      }
-      status = upper;
-    }
     try {
-      res.json(status === undefined ? await listTechnologies() : await listTechnologies(status));
+      res.json(await listTechnologies());
     } catch (err) {
       console.error('Failed to list technologies', err);
       res.status(500).json({ error: 'Failed to load technologies' });

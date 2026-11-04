@@ -102,11 +102,8 @@ Radar](http://zalando.github.io/tech-radar/).
 The radar entries are stored in a PostgreSQL `technologies` table
 (`number`, `title`, `description`, `type`, `status`, `trend`). A small
 Express server (`server/`) serves the front end in `docs/` and exposes
-`GET /api/technologies`, which returns every technology ordered by `number`.
-The optional `status` query parameter (`ADOPT`, `TRIAL`, `ASSESS` or `HOLD`,
-case-insensitive) keeps only the technologies with that status, for example
-`GET /api/technologies?status=ADOPT`; any other value returns `400` with the
-allowed values.
+`GET /api/technologies`, which returns every technology ordered by `number`
+and ignores any query parameter.
 `docs/index.html` builds the radar from that endpoint; the mapping from
 `type` / `status` / `trend` to quadrant / ring / moved lives in
 `docs/technology-mapping.js`. `docs/config.json` only holds the radar `date`.

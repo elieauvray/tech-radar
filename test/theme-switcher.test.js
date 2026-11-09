@@ -21,24 +21,24 @@ const throwingStorage = {
   setItem() { throw new Error('storage denied'); }
 };
 
-test('the default theme is Société Générale and both themes are listed', () => {
-  assert.deepEqual(themes.THEMES, ['societe-generale', 'upsun']);
-  assert.equal(themes.DEFAULT_THEME, 'societe-generale');
+test('the default theme is Upsun and both themes are listed', () => {
+  assert.deepEqual(themes.THEMES, ['upsun', 'societe-generale']);
+  assert.equal(themes.DEFAULT_THEME, 'upsun');
 });
 
 test('normalizeTheme keeps known themes and falls back to the default otherwise', () => {
   assert.equal(themes.normalizeTheme('upsun'), 'upsun');
   assert.equal(themes.normalizeTheme('societe-generale'), 'societe-generale');
   for (const value of ['', 'dark', 'UPSUN', 'toString', '__proto__', null, undefined, 3, {}, ['upsun']]) {
-    assert.equal(themes.normalizeTheme(value), 'societe-generale');
+    assert.equal(themes.normalizeTheme(value), 'upsun');
   }
 });
 
 test('nextTheme cycles between the two themes', () => {
   assert.equal(themes.nextTheme('societe-generale'), 'upsun');
   assert.equal(themes.nextTheme('upsun'), 'societe-generale');
-  assert.equal(themes.nextTheme('garbage'), 'upsun');
-  assert.equal(themes.nextTheme(undefined), 'upsun');
+  assert.equal(themes.nextTheme('garbage'), 'societe-generale');
+  assert.equal(themes.nextTheme(undefined), 'societe-generale');
 });
 
 test('the Société Générale options are the values the radar always had', () => {
@@ -91,6 +91,13 @@ test('the page title is "Tech Radar"', () => {
   assert.match(html, /<title>Tech Radar<\/title>/);
 });
 
+test('the page meta description does not mention Société Générale', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'docs', 'index.html'), 'utf8');
+  const match = html.match(/<meta name="description" content="([^"]*)"/);
+  assert.ok(match);
+  assert.doesNotMatch(match[1], /Soci[ée]t[ée]/i);
+});
+
 test('the favicon is the Upsun icon', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'docs', 'index.html'), 'utf8');
   assert.match(html, /<link rel="icon"[^>]*href="images\/favicon\.svg"/);
@@ -100,7 +107,7 @@ test('the favicon is the Upsun icon', () => {
 });
 
 test('an unknown theme gets the default options', () => {
-  assert.deepEqual(themes.radarOptions('nope'), themes.radarOptions('societe-generale'));
+  assert.deepEqual(themes.radarOptions('nope'), themes.radarOptions('upsun'));
 });
 
 test('radarOptions returns a copy that can be mutated safely', () => {
@@ -113,30 +120,30 @@ test('radarOptions returns a copy that can be mutated safely', () => {
 
 test('saveTheme and loadTheme round-trip through the storage', () => {
   const storage = memoryStorage();
-  assert.equal(themes.loadTheme(storage), 'societe-generale');
-  assert.equal(themes.saveTheme('upsun', storage), true);
-  assert.equal(storage.getItem(themes.STORAGE_KEY), 'upsun');
   assert.equal(themes.loadTheme(storage), 'upsun');
+  assert.equal(themes.saveTheme('societe-generale', storage), true);
+  assert.equal(storage.getItem(themes.STORAGE_KEY), 'societe-generale');
+  assert.equal(themes.loadTheme(storage), 'societe-generale');
 });
 
 test('loadTheme ignores a garbage stored value', () => {
   const storage = memoryStorage({ [themes.STORAGE_KEY]: 'hotpink' });
-  assert.equal(themes.loadTheme(storage), 'societe-generale');
+  assert.equal(themes.loadTheme(storage), 'upsun');
 });
 
 test('saveTheme only stores known themes', () => {
   const storage = memoryStorage();
   themes.saveTheme('hotpink', storage);
-  assert.equal(storage.getItem(themes.STORAGE_KEY), 'societe-generale');
+  assert.equal(storage.getItem(themes.STORAGE_KEY), 'upsun');
 });
 
 test('loadTheme and saveTheme tolerate a storage that throws', () => {
-  assert.equal(themes.loadTheme(throwingStorage), 'societe-generale');
+  assert.equal(themes.loadTheme(throwingStorage), 'upsun');
   assert.equal(themes.saveTheme('upsun', throwingStorage), false);
 });
 
 test('loadTheme and saveTheme tolerate a missing storage', () => {
   // no localStorage in Node: the default storage is null
-  assert.equal(themes.loadTheme(), 'societe-generale');
+  assert.equal(themes.loadTheme(), 'upsun');
   assert.equal(themes.saveTheme('upsun'), false);
 });

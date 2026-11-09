@@ -10,13 +10,13 @@
     root.ThemeSwitcher = themeSwitcher;
   }
 }(typeof self !== "undefined" ? self : this, function (root) {
-  var THEMES = ["societe-generale", "upsun"];
-  var DEFAULT_THEME = "societe-generale";
+  var THEMES = ["upsun", "societe-generale"];
+  var DEFAULT_THEME = "upsun";
   var STORAGE_KEY = "radar-theme";
 
   // Options merged into the radar_visualization() config, per theme.
-  // "societe-generale" holds the values the radar always had.
-  // "upsun" is an approximation of the upsun.com look: dark, rounded, purple accent,
+  // "societe-generale" holds the values the radar always had; it is the alternative look.
+  // "upsun" is the default look, an approximation of the upsun.com look: dark, rounded, purple accent,
   // with a simplified Upsun logo in the header, next to a purple blur behind the title.
   // Its title_banner is explicitly null, otherwise the radar would draw its default banner.
   // "title" is also the accessible label of the header logo, so each theme has its own.

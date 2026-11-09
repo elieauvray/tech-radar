@@ -2,22 +2,11 @@
 
 const path = require('path');
 const express = require('express');
-const TechnologyMapping = require('../docs/technology-mapping');
 const { validateTechnology } = require('../docs/technology-validation');
 
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 
 const MAX_INT4 = 2147483647;
-
-// Normalise a `status` query value to its canonical upper-case form, or return
-// null when it is not a known status. Repeated or nested parameters arrive as
-// arrays or objects and are rejected; ASCII letters only avoids Unicode
-// case-folding surprises.
-function parseStatus(raw) {
-  if (typeof raw !== 'string' || !/^[A-Za-z]+$/.test(raw)) return null;
-  const status = raw.toUpperCase();
-  return Object.prototype.hasOwnProperty.call(TechnologyMapping.STATUSES, status) ? status : null;
-}
 
 // Build the Express app. `listTechnologies`, `createTechnology` and
 // `deleteTechnology` are injected so tests can replace the database with a fake.
@@ -31,22 +20,10 @@ function createApp({ listTechnologies, createTechnology, deleteTechnology }) {
     next();
   });
 
-  // List technologies, ordered by number. The optional `status` query
-  // parameter (case-insensitive) restricts the list to one status; any other
-  // query parameter is ignored.
+  // List all technologies, ordered by number. Query parameters are ignored.
   app.get('/api/technologies', async (req, res) => {
-    let status;
-    if (req.query.status !== undefined) {
-      status = parseStatus(req.query.status);
-      if (status === null) {
-        res.status(400).json({
-          errors: { status: `Status must be one of: ${Object.keys(TechnologyMapping.STATUSES).join(', ')}` },
-        });
-        return;
-      }
-    }
     try {
-      res.json(status === undefined ? await listTechnologies() : await listTechnologies(status));
+      res.json(await listTechnologies());
     } catch (err) {
       console.error('Failed to list technologies', err);
       res.status(500).json({ error: 'Failed to load technologies' });

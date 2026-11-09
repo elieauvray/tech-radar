@@ -10,7 +10,7 @@ pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL pool error', err);
 });
 const app = createApp({
-  listTechnologies: () => listTechnologies(pool),
+  listTechnologies: (status) => listTechnologies(pool, status),
   createTechnology: (technology) => createTechnology(pool, technology),
   deleteTechnology: (number) => deleteTechnology(pool, number),
 });

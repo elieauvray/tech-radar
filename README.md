@@ -124,6 +124,12 @@ numbers stay contiguous; the page then reloads the radar. The endpoint returns
 `204` on success, `400` when `:number` is not a positive integer and `404` when
 no technology has that number.
 
+Two dropdowns over the radar header (Type and Status) filter the technologies
+already loaded, with no extra API call. The filters combine, and non-matching
+blips and legend entries are dimmed and not clickable rather than removed, so
+blips never move. The selection is kept in the URL as `?type=Datastores&status=HOLD`
+(unknown values are ignored); the logic lives in `docs/technology-filter.js`.
+
 - `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
 - `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data. Numbers are reused after a delete (later technologies shift down), but the seed never runs again once the table has been used, even if every technology is deleted.
 

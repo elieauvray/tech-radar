@@ -11,6 +11,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-filter.js"></script>
 <script src="technology-validation.js"></script>
 <script src="theme-switcher.js"></script>
 <script>
@@ -28,6 +29,18 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 
 <div class="radar-container">
 <svg id="radar"></svg>
+<div class="radar-filters">
+<div class="filter-controls">
+<label for="filter-type" class="visually-hidden">Type</label>
+<select id="filter-type"></select>
+<label for="filter-status" class="visually-hidden">Status</label>
+<select id="filter-status"></select>
+</div>
+<div class="filter-summary" aria-live="polite">
+<span id="filter-count"></span>
+<a href="?" id="filter-reset" hidden>Reset</a>
+</div>
+</div>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
 </div>
 
@@ -134,10 +147,104 @@ function render() {
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
+      // dimmed entries do nothing (also covers keyboard activation of a legend link)
+      var row = findTechnology(entry.id);
+      if (row && !TechnologyFilter.matches(row, filters)) return;
       showDetails(entry);
     }
   });
+  // the radar was redrawn from scratch: dim the entries that do not match again
+  applyFilters();
 }
+
+// ---- Type / Status filters ----
+// "" means "All". The state comes from the URL (?type=…&status=…) and only dims
+// the drawn blips and legend entries: nothing is redrawn, so blips never move.
+var filters = TechnologyFilter.parseFilters(window.location.search);
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterCount = document.getElementById('filter-count');
+var filterReset = document.getElementById('filter-reset');
+
+function fillFilterSelect(select, allLabel, values) {
+  var all = document.createElement('option');
+  all.value = '';
+  all.textContent = allLabel;
+  select.appendChild(all);
+  values.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, TechnologyFilter.ALL_TYPES, TechnologyFilter.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, TechnologyFilter.ALL_STATUSES, TechnologyFilter.STATUS_OPTIONS);
+filterType.value = filters.type;
+filterStatus.value = filters.status;
+filterReset.hidden = !TechnologyFilter.isActive(filters);
+
+// radar entry ids are String(row.number)
+function findTechnology(id) {
+  for (var i = 0; i < technologies.length; i++) {
+    if (String(technologies[i].number) === String(id)) return technologies[i];
+  }
+  return null;
+}
+
+function setDimmed(element, dimmed) {
+  element.classList.toggle('is-dimmed', dimmed);
+}
+
+function applyFilters() {
+  d3.selectAll('#rink .blip').each(function(entry) {
+    var row = findTechnology(entry.id);
+    setDimmed(this, !row || !TechnologyFilter.matches(row, filters));
+  });
+
+  var prefix = 'legendItem';
+  Array.prototype.forEach.call(document.querySelectorAll('#radar a.legend-entry'), function(link) {
+    var text = link.querySelector('text');
+    var row = text && text.id.indexOf(prefix) === 0 ? findTechnology(text.id.slice(prefix.length)) : null;
+    var dimmed = !row || !TechnologyFilter.matches(row, filters);
+    setDimmed(link, dimmed);
+    if (dimmed) {
+      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('tabindex', '-1');
+    } else {
+      link.removeAttribute('aria-disabled');
+      link.removeAttribute('tabindex');
+    }
+  });
+
+  if (configData) {
+    filterCount.textContent = 'Showing ' + TechnologyFilter.countMatches(technologies, filters) +
+      ' of ' + technologies.length + ' technologies';
+  }
+  filterReset.hidden = !TechnologyFilter.isActive(filters);
+}
+
+function filtersChanged() {
+  applyFilters();
+  // replaceState: changing a filter should not fill the browser history
+  window.history.replaceState(null, '',
+    window.location.pathname + TechnologyFilter.buildSearch(filters, window.location.search) + window.location.hash);
+}
+
+function readFilterSelects() {
+  filters = TechnologyFilter.normalizeFilters({ type: filterType.value, status: filterStatus.value });
+  filtersChanged();
+}
+
+filterType.addEventListener('change', readFilterSelects);
+filterStatus.addEventListener('change', readFilterSelects);
+filterReset.addEventListener('click', function(event) {
+  event.preventDefault();
+  filterType.value = '';
+  filterStatus.value = '';
+  readFilterSelects();
+});
 
 // ---- Theme switch ----
 var themeToggle = document.getElementById('theme-toggle');

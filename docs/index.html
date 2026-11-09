@@ -11,6 +11,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-filters.js"></script>
 <script src="technology-validation.js"></script>
 <script src="theme-switcher.js"></script>
 <script>
@@ -29,6 +30,22 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 <div class="radar-container">
 <svg id="radar"></svg>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
+<div id="radar-filters" class="radar-filters">
+<div class="radar-filter-selects">
+<div class="radar-filter">
+<label for="filter-type">Type</label>
+<select id="filter-type"></select>
+</div>
+<div class="radar-filter">
+<label for="filter-status">Status</label>
+<select id="filter-status"></select>
+</div>
+</div>
+<div class="radar-filter-summary">
+<p id="filter-count" class="filter-count" aria-live="polite"></p>
+<a href="?" id="filter-reset" class="filter-reset" hidden>Reset</a>
+</div>
+</div>
 </div>
 
 <div id="add-modal" class="modal-backdrop" hidden>
@@ -134,10 +151,103 @@ function render() {
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
+      // a dimmed (non-matching) entry is not clickable, also by keyboard
+      var row = findRow(entry.id);
+      if (row && !TechnologyFilters.matches(row, filters)) return;
       showDetails(entry);
     }
   });
+  // the radar was redrawn from scratch: dim and count again
+  applyFilters();
 }
+
+// ---- Type / Status filters ----
+// the selected filters, restored from the URL (unknown values count as "All")
+var filters = TechnologyFilters.parseFilters(window.location.search);
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterCount = document.getElementById('filter-count');
+var filterReset = document.getElementById('filter-reset');
+
+function findRow(id) {
+  for (var i = 0; i < technologies.length; i++) {
+    if (String(technologies[i].number) === id) return technologies[i];
+  }
+  return null;
+}
+
+function fillFilterSelect(select, allLabel, options) {
+  var all = document.createElement('option');
+  all.value = TechnologyFilters.ALL;
+  all.textContent = allLabel;
+  select.appendChild(all);
+  options.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', TechnologyFilters.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', TechnologyFilters.STATUS_OPTIONS);
+
+function syncFilterControls() {
+  filterType.value = filters.type;
+  filterStatus.value = filters.status;
+  filterReset.hidden = !TechnologyFilters.isActive(filters);
+}
+
+// Dims the entries that do not match by toggling a class on the drawn radar:
+// nothing is redrawn, so the blips never move.
+function applyFilters() {
+  syncFilterControls();
+  if (!configData) return;
+  var rowsById = {};
+  technologies.forEach(function(row) {
+    rowsById[String(row.number)] = row;
+  });
+  function isDimmed(entry) {
+    var row = rowsById[entry.id];
+    return !!row && !TechnologyFilters.matches(row, filters);
+  }
+  d3.selectAll('#radar .blip').classed('dimmed', isDimmed);
+  d3.selectAll('#radar a.legend-entry')
+    .classed('dimmed', isDimmed)
+    .attr('aria-disabled', function(entry) { return isDimmed(entry) ? 'true' : null; })
+    .attr('tabindex', function(entry) { return isDimmed(entry) ? '-1' : null; });
+  filterCount.textContent = 'Showing ' + TechnologyFilters.countMatching(technologies, filters) +
+    ' of ' + technologies.length + ' technologies';
+}
+
+function updateFilterUrl() {
+  try {
+    window.history.replaceState(null, '',
+      window.location.pathname + TechnologyFilters.serializeFilters(filters) + window.location.hash);
+  } catch (err) {
+    // sandboxed contexts may refuse to change the URL: the filters still apply
+    console.log('Could not update the URL', err);
+  }
+}
+
+function setFilters(next) {
+  filters = TechnologyFilters.normalizeFilters(next);
+  applyFilters();
+  updateFilterUrl();
+}
+
+filterType.addEventListener('change', function() {
+  setFilters({ type: filterType.value, status: filters.status });
+});
+filterStatus.addEventListener('change', function() {
+  setFilters({ type: filters.type, status: filterStatus.value });
+});
+filterReset.addEventListener('click', function(event) {
+  event.preventDefault();
+  setFilters({ type: TechnologyFilters.ALL, status: TechnologyFilters.ALL });
+});
+
+syncFilterControls();
 
 // ---- Theme switch ----
 var themeToggle = document.getElementById('theme-toggle');

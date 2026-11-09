@@ -40,6 +40,20 @@ html[data-theme="upsun"] .add-technology-btn:focus-visible {
   outline-offset: 2px;
 }
 
+/* Type / Status filters: Upsun font, light summary text on the dark page */
+html[data-theme="upsun"] .radar-filters {
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .filter-count {
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .filter-reset {
+  color: var(--upsun-lime);
+}
+html[data-theme="upsun"] .filter-reset:focus-visible {
+  outline-color: #fff;
+}
+
 /* modals */
 html[data-theme="upsun"] .modal-backdrop {
   background: rgba(5, 5, 15, 0.7);

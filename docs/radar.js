@@ -44,6 +44,7 @@ function radar_visualization(config) {
   config.title_offset = config.title_offset || { x: -675, y: -420 };
   config.title_logo = config.title_logo || null;  // optional { url, width, height }
   config.on_entry_click = (typeof config.on_entry_click === "function") ? config.on_entry_click : null;  // optional function(entry, event)
+  config.entry_filter = (typeof config.entry_filter === "function") ? config.entry_filter : null;  // optional function(entry) -> boolean, non-matching entries are dimmed and not clickable
   config.title_suffix = config.title_suffix || "";  // optional text drawn after the logo
   var default_title_banner = { height: 51, from: "#000000", to: "#e9041e", text_color: "#fff" };  // width defaults to reaching the right edge
   config.title_banner = ("title_banner" in config) ? (config.title_banner ? Object.assign({}, default_title_banner, config.title_banner) : null) : default_title_banner;  // optional gradient band behind the title, null to disable
@@ -666,6 +667,28 @@ function radar_visualization(config) {
     .force("collision", d3.forceCollide().radius(12).strength(0.85))
     .on("tick", ticked);
 
+  // Dim (and disable) the entries that do not match `filter`, in place: the
+  // positions and the simulation are left untouched. `null` clears the filter.
+  var FILTERED_OPACITY = 0.15;
+
+  function applyFilter(filter) {
+    function matching(d) {
+      return !filter || filter(d);
+    }
+
+    rink.selectAll(".blip")
+      .style("opacity", function(d) { return matching(d) ? null : FILTERED_OPACITY; })
+      .style("pointer-events", function(d) { return matching(d) ? null : "none"; });
+
+    radar.selectAll("a.legend-entry")
+      .style("opacity", function(d) { return matching(d) ? null : FILTERED_OPACITY; })
+      .style("pointer-events", function(d) { return matching(d) ? null : "none"; })
+      .attr("tabindex", function(d) { return matching(d) ? null : "-1"; })
+      .attr("aria-disabled", function(d) { return matching(d) ? null : "true"; });
+  }
+
+  applyFilter(config.entry_filter);
+
   function ringDescriptionsTable() {
     var table = d3.select("body").append("table")
       .attr("class", "radar-table")
@@ -716,4 +739,8 @@ function radar_visualization(config) {
   if (config.print_ring_descriptions_table) {
     ringDescriptionsTable();
   }
+
+  return {
+    setFilter: applyFilter
+  };
 }

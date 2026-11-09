@@ -11,6 +11,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-filter.js"></script>
 <script src="technology-validation.js"></script>
 <script src="theme-switcher.js"></script>
 <script>
@@ -28,6 +29,16 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 
 <div class="radar-container">
 <svg id="radar"></svg>
+<div class="radar-filters">
+<div class="radar-filters-row">
+<select id="filter-type" class="radar-filter-select" aria-label="Type"></select>
+<select id="filter-status" class="radar-filter-select" aria-label="Status"></select>
+</div>
+<p class="radar-filters-meta">
+<span id="filter-counter" aria-live="polite"></span>
+<a href="#" id="filter-reset" class="radar-filters-reset" hidden>Reset</a>
+</p>
+</div>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
 </div>
 
@@ -108,11 +119,88 @@ function fetchJson(url) {
 // the look and feel in use, also set as data-theme on <html> (see the head script)
 var currentTheme = ThemeSwitcher.normalizeTheme(document.documentElement.getAttribute('data-theme'));
 
+// ---- Type / Status filters ----
+// read once from the URL before the first render; unknown values count as "All"
+var filters = TechnologyFilter.parseQuery(window.location.search);
+// the API returned by radar_visualization for the radar currently drawn
+var radarApi = null;
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterCounter = document.getElementById('filter-counter');
+var filterReset = document.getElementById('filter-reset');
+
+function fillFilterSelect(select, allLabel, values) {
+  var all = document.createElement('option');
+  all.value = TechnologyFilter.ALL;
+  all.textContent = allLabel;
+  select.appendChild(all);
+  values.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', TechnologyFilter.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', TechnologyFilter.STATUS_OPTIONS);
+
+function syncFilterControls() {
+  filterType.value = filters.type;
+  filterStatus.value = filters.status;
+  filterReset.hidden = !TechnologyFilter.isActive(filters);
+}
+
+// does a radar entry pass the current filters?
+function entryMatchesFilters(entry) {
+  return TechnologyFilter.matches({
+    type: TechnologyMapping.quadrantToType(entry.quadrant),
+    status: TechnologyMapping.ringToStatus(entry.ring)
+  }, filters);
+}
+
+function updateFilterCounter() {
+  if (!configData) {
+    filterCounter.textContent = '';
+    return;
+  }
+  filterCounter.textContent = TechnologyFilter.counterText(
+    TechnologyFilter.countMatches(technologies, filters), technologies.length);
+}
+
+// no re-render and no API call: the data already loaded is reused and the
+// radar dims its entries in place, so the blips never move
+function applyFilters() {
+  syncFilterControls();
+  if (radarApi) radarApi.setFilter(entryMatchesFilters);
+  updateFilterCounter();
+  history.replaceState(null, '', window.location.pathname +
+    TechnologyFilter.toQuery(filters) + window.location.hash);
+}
+
+filterType.addEventListener('change', function() {
+  filters = TechnologyFilter.normalizeFilters({ type: filterType.value, status: filters.status });
+  applyFilters();
+});
+
+filterStatus.addEventListener('change', function() {
+  filters = TechnologyFilter.normalizeFilters({ type: filters.type, status: filterStatus.value });
+  applyFilters();
+});
+
+filterReset.addEventListener('click', function(event) {
+  event.preventDefault();
+  filters = TechnologyFilter.normalizeFilters(null);
+  applyFilters();
+});
+
+syncFilterControls();
+
 function render() {
   // colours, font, ring colours, title banner or blur, and logo of the current theme
   var theme = ThemeSwitcher.radarOptions(currentTheme);
   var ringNames = ["ADOPT", "TRIAL", "ASSESS", "HOLD"];
-  radar_visualization({
+  radarApi = radar_visualization({
     repo_url: "https://github.com/zalando/tech-radar",
     title: theme.title,
     title_logo: theme.title_logo,
@@ -133,10 +221,13 @@ function render() {
     }),
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
+    entry_filter: entryMatchesFilters,
     on_entry_click: function(entry) {
       showDetails(entry);
     }
   });
+  // M changes when the list was reloaded, so recompute the counter
+  updateFilterCounter();
 }
 
 // ---- Theme switch ----

@@ -40,6 +40,28 @@ html[data-theme="upsun"] .add-technology-btn:focus-visible {
   outline-offset: 2px;
 }
 
+/* Type / Status filters, counter and Reset */
+html[data-theme="upsun"] .radar-filters {
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .radar-filter select {
+  border-color: rgba(230, 230, 242, 0.6);
+  background: rgba(11, 11, 30, 0.6);
+}
+html[data-theme="upsun"] .radar-filter option {
+  background: var(--upsun-surface);
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .radar-filter select:focus-visible {
+  outline-color: var(--upsun-purple-light);
+}
+html[data-theme="upsun"] .radar-filters-summary {
+  color: var(--upsun-muted);
+}
+html[data-theme="upsun"] .radar-filters-summary a {
+  color: var(--upsun-lime);
+}
+
 /* modals */
 html[data-theme="upsun"] .modal-backdrop {
   background: rgba(5, 5, 15, 0.7);

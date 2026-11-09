@@ -42,6 +42,74 @@ li {
   background: #f2f2f2;
 }
 
+/* Type / Status filters, centred over the header band of the radar */
+.radar-filters {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.radar-filters-row {
+  display: flex;
+  gap: 12px;
+}
+.radar-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.radar-filter select {
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.radar-filter select:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+.radar-filter select:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+/* the native option list ignores translucent backgrounds */
+.radar-filter option {
+  background: #1a1a1a;
+  color: #fff;
+}
+/* counter and Reset sit just below the header band, on the page background */
+.radar-filters-summary {
+  margin: 18px 0 0;
+  color: #333;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.radar-filters-summary a {
+  margin-left: 8px;
+  color: #e9041e;
+  text-decoration: underline;
+}
+
+/* entries that do not match the filters: dimmed in place and inert */
+.blip.dimmed,
+a.legend-entry.dimmed {
+  opacity: 0.15;
+  pointer-events: none;
+  cursor: default;
+}
+
 /* theme switch button, fixed at the bottom left of the viewport (below the modals) */
 .theme-toggle-btn {
   position: fixed;

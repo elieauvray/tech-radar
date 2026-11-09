@@ -130,8 +130,8 @@ no technology has that number.
 ### Look and feel
 
 The "Theme" button at the bottom left of the page switches between the
-`societe-generale` look (the default) and a more modern `upsun` look. The
-choice is saved in the browser's `localStorage` (`radar-theme`) and restored on
+`upsun` look (the default, also used when nothing valid is saved) and the
+`societe-generale` look. The choice is saved in the browser's `localStorage` (`radar-theme`) and restored on
 the next visit. The radar's colours are set inline by d3, so each theme is a set
 of options for `radar_visualization()` defined in `docs/theme-switcher.js`
 (`colors`, `font_family`, `ring_colors`, `title_banner`, `title_blur`, `title`,

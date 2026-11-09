@@ -11,6 +11,7 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
+<script src="technology-filter.js"></script>
 <script src="technology-validation.js"></script>
 <script src="theme-switcher.js"></script>
 <script>
@@ -28,6 +29,18 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 
 <div class="radar-container">
 <svg id="radar"></svg>
+<div id="radar-filters" class="radar-filters">
+<div class="radar-filters-row">
+<label for="filter-type" class="visually-hidden">Type</label>
+<select id="filter-type" class="radar-filter-select"></select>
+<label for="filter-status" class="visually-hidden">Status</label>
+<select id="filter-status" class="radar-filter-select"></select>
+</div>
+<div class="radar-filters-summary">
+<p id="filter-counter" class="radar-filter-counter" aria-live="polite"></p>
+<a id="filter-reset" class="radar-filter-reset" href="#" hidden>Reset</a>
+</div>
+</div>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
 </div>
 
@@ -134,10 +147,90 @@ function render() {
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
+      // dimmed entries do nothing (also covers keyboard activation of legend links)
+      if (!entryMatchesFilters(entry)) return;
       showDetails(entry);
     }
   });
+  // the radar was just redrawn: dim again what the current filters exclude
+  applyFilters();
 }
+
+// ---- Type and Status filters ----
+// the filters only dim the blips and legend entries already drawn (see .dimmed in
+// radar.css): the radar is never redrawn for a filter change, so blips do not move
+var filters = TechnologyFilter.parseFilters(window.location.search);
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterCounter = document.getElementById('filter-counter');
+var filterReset = document.getElementById('filter-reset');
+
+function fillFilterSelect(select, allLabel, values) {
+  [{ value: TechnologyFilter.ALL, label: allLabel }].concat(values.map(function(value) {
+    return { value: value, label: value };
+  })).forEach(function(item) {
+    var option = document.createElement('option');
+    option.value = item.value;
+    option.textContent = item.label;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', TechnologyFilter.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', TechnologyFilter.STATUS_OPTIONS);
+filterType.value = filters.type;
+filterStatus.value = filters.status;
+
+// a radar entry (see TechnologyMapping.toRadarEntry) has a quadrant and a ring
+function entryMatchesFilters(entry) {
+  return TechnologyFilter.matches({
+    type: TechnologyMapping.quadrantToType(entry.quadrant),
+    status: TechnologyMapping.ringToStatus(entry.ring)
+  }, filters);
+}
+
+function applyFilters() {
+  d3.selectAll('#radar g.blip').classed('dimmed', function(d) {
+    return !entryMatchesFilters(d);
+  });
+  d3.selectAll('#radar a.legend-entry')
+    .classed('dimmed', function(d) {
+      return !entryMatchesFilters(d);
+    })
+    .attr('aria-disabled', function(d) {
+      return entryMatchesFilters(d) ? null : 'true';
+    })
+    .attr('tabindex', function(d) {
+      return entryMatchesFilters(d) ? null : '-1';
+    });
+  filterCounter.textContent = TechnologyFilter.counterText(
+    TechnologyFilter.countMatching(technologies, filters),
+    technologies.length
+  );
+  filterReset.hidden = !TechnologyFilter.isActive(filters);
+  try {
+    window.history.replaceState(null, '',
+      window.location.pathname + TechnologyFilter.serializeFilters(filters) + window.location.hash);
+  } catch (e) {
+    // the URL is only a convenience: ignore a browser that refuses to change it
+  }
+}
+
+function onFilterChange() {
+  filters = TechnologyFilter.normalizeFilters({ type: filterType.value, status: filterStatus.value });
+  applyFilters();
+}
+
+filterType.addEventListener('change', onFilterChange);
+filterStatus.addEventListener('change', onFilterChange);
+filterReset.addEventListener('click', function(event) {
+  event.preventDefault();
+  filterType.value = TechnologyFilter.ALL;
+  filterStatus.value = TechnologyFilter.ALL;
+  onFilterChange();
+  // the link hides itself: keep the keyboard focus on the filters
+  filterType.focus();
+});
 
 // ---- Theme switch ----
 var themeToggle = document.getElementById('theme-toggle');

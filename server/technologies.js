@@ -2,10 +2,18 @@
 
 const { compareTechnologies } = require('../docs/technology-mapping');
 
-// List all technologies, ordered by number.
-async function listTechnologies(pool) {
+// List technologies, ordered by number; only those with the given status
+// when one is passed.
+async function listTechnologies(pool, status) {
+  if (status === undefined) {
+    const { rows } = await pool.query(
+      'SELECT number, title, description, type, status, trend FROM technologies ORDER BY number'
+    );
+    return rows;
+  }
   const { rows } = await pool.query(
-    'SELECT number, title, description, type, status, trend FROM technologies ORDER BY number'
+    'SELECT number, title, description, type, status, trend FROM technologies WHERE status = $1 ORDER BY number',
+    [status]
   );
   return rows;
 }

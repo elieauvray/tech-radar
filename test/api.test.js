@@ -86,31 +86,81 @@ test('GET /api/technologies calls listTechnologies with no arguments', async () 
   });
 });
 
-test('GET /api/technologies ignores any status query parameter', async () => {
+test('GET /api/technologies?status= filters by status, case-insensitively', async () => {
   const calls = [];
   const list = async (...args) => {
     calls.push(args);
     return ROWS;
   };
   const queries = [
-    'status=ADOPT',
-    'status=adopt',
-    'status=TRIAL',
+    ['status=ADOPT', 'ADOPT'],
+    ['status=adopt', 'ADOPT'],
+    ['status=Adopt', 'ADOPT'],
+    ['status=TRIAL', 'TRIAL'],
+    ['status=assess', 'ASSESS'],
+    ['status=HOLD', 'HOLD'],
+  ];
+  await withServer({ listTechnologies: list }, async (base) => {
+    for (const [query] of queries) {
+      const res = await fetch(`${base}/api/technologies?${query}`);
+      assert.equal(res.status, 200, query);
+      assert.match(res.headers.get('content-type'), /application\/json/);
+      assert.deepEqual(await res.json(), ROWS, query);
+    }
+    assert.deepEqual(calls, queries.map(([, status]) => [status]));
+  });
+});
+
+test('GET /api/technologies?status=adopt returns the same as status=ADOPT', async () => {
+  const adopt = ROWS.slice(0, 1);
+  const list = async (status) => (status === 'ADOPT' ? adopt : ROWS);
+  await withServer({ listTechnologies: list }, async (base) => {
+    const upper = await (await fetch(`${base}/api/technologies?status=ADOPT`)).json();
+    const lower = await (await fetch(`${base}/api/technologies?status=adopt`)).json();
+    assert.deepEqual(upper, adopt);
+    assert.deepEqual(lower, upper);
+  });
+});
+
+test('GET /api/technologies rejects an unknown status with 400', async () => {
+  const calls = [];
+  const list = async (...args) => {
+    calls.push(args);
+    return ROWS;
+  };
+  const queries = [
     'status=FOO',
     'status=',
     'status=ADOPT&status=TRIAL',
     'status[x]=y',
     'status=constructor',
     'status=__proto__',
+    'status=%C5%BFtatus',
+    'status=ADOPT%20',
   ];
   await withServer({ listTechnologies: list }, async (base) => {
     for (const query of queries) {
       const res = await fetch(`${base}/api/technologies?${query}`);
-      assert.equal(res.status, 200, query);
-      assert.match(res.headers.get('content-type'), /application\/json/);
-      assert.deepEqual(await res.json(), ROWS, query);
+      assert.equal(res.status, 400, query);
+      assert.deepEqual(await res.json(), {
+        errors: { status: 'Status must be one of: ADOPT, TRIAL, ASSESS, HOLD' },
+      }, query);
     }
-    assert.deepEqual(calls, queries.map(() => []));
+    assert.deepEqual(calls, []);
+  });
+});
+
+test('GET /api/technologies ignores other query parameters', async () => {
+  const calls = [];
+  const list = async (...args) => {
+    calls.push(args);
+    return ROWS;
+  };
+  await withServer({ listTechnologies: list }, async (base) => {
+    const res = await fetch(`${base}/api/technologies?foo=bar`);
+    assert.equal(res.status, 200);
+    assert.deepEqual(await res.json(), ROWS);
+    assert.deepEqual(calls, [[]]);
   });
 });
 

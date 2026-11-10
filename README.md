@@ -127,6 +127,22 @@ no technology has that number.
 - `db/migrations/` holds the SQL schema; `node db/migrate.js` runs it and is safe to run more than once.
 - `node db/seed.js` loads `db/seed-data.json`, but only into a fresh table (no rows and no number ever issued), so redeploys never duplicate data. Numbers are reused after a delete (later technologies shift down), but the seed never runs again once the table has been used, even if every technology is deleted.
 
+### Filters
+
+Two dropdowns in the page header, "Type" and "Status", filter the radar. They
+combine with AND. Filtering is client-side only: it uses the technologies
+already loaded from `GET /api/technologies`, makes no extra request and does
+not re-render the radar, so blips never move. Non-matching blips and legend
+entries are dimmed (15% opacity) and cannot be clicked. A counter shows
+"Showing N of M technologies", and a "Reset" link appears while a filter is
+active.
+
+The selection is kept in the URL with `history.replaceState`, so a filtered view
+can be shared: `?type=Datastores&status=HOLD`. `type` accepts `Datastores`,
+`Data Management`, `Infrastructure` or `Language`; `status` accepts `ADOPT`,
+`TRIAL`, `ASSESS` or `HOLD`. Values are case-sensitive and an unknown value is
+ignored (treated as "All"). The logic lives in `docs/technology-filters.js`.
+
 ### Look and feel
 
 The "Theme" button at the bottom left of the page switches between the

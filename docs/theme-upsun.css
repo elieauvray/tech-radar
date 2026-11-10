@@ -40,6 +40,34 @@ html[data-theme="upsun"] .add-technology-btn:focus-visible {
   outline-offset: 2px;
 }
 
+/* Type / Status filters over the purple band */
+html[data-theme="upsun"] .radar-filters {
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .filter-field select {
+  border-color: rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background-color: rgba(11, 11, 30, 0.6);
+  font-family: var(--upsun-font);
+}
+html[data-theme="upsun"] .filter-field select:hover {
+  background-color: rgba(11, 11, 30, 0.8);
+}
+html[data-theme="upsun"] .filter-field select option {
+  background: var(--upsun-surface);
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .filter-count {
+  color: var(--upsun-muted);
+}
+html[data-theme="upsun"] .filter-reset {
+  color: var(--upsun-lime);
+}
+html[data-theme="upsun"] .filter-reset:focus-visible,
+html[data-theme="upsun"] .filter-field select:focus-visible {
+  outline-color: var(--upsun-purple-light);
+}
+
 /* modals */
 html[data-theme="upsun"] .modal-backdrop {
   background: rgba(5, 5, 15, 0.7);

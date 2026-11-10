@@ -40,6 +40,29 @@ html[data-theme="upsun"] .add-technology-btn:focus-visible {
   outline-offset: 2px;
 }
 
+/* Type / Status filters: dark selects on the purple band, lime focus ring */
+html[data-theme="upsun"] .filter-select {
+  border-color: var(--upsun-purple-light);
+  background-color: rgba(11, 11, 30, 0.7);
+}
+html[data-theme="upsun"] .filter-select:hover {
+  background-color: rgba(11, 11, 30, 0.9);
+}
+html[data-theme="upsun"] .filter-select:focus-visible,
+html[data-theme="upsun"] .filter-reset:focus-visible {
+  outline-color: var(--upsun-lime);
+}
+html[data-theme="upsun"] .filter-select option {
+  background: var(--upsun-surface);
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .filter-summary {
+  color: var(--upsun-text);
+}
+html[data-theme="upsun"] .filter-reset {
+  color: var(--upsun-lime);
+}
+
 /* modals */
 html[data-theme="upsun"] .modal-backdrop {
   background: rgba(5, 5, 15, 0.7);

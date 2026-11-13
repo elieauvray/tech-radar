@@ -42,6 +42,90 @@ li {
   background: #f2f2f2;
 }
 
+/*
+ * Type / Status filters, centred in the title band drawn by radar.js (the band
+ * spans y = 44px..95px of the svg). An HTML overlay, like the add button.
+ */
+.radar-filters {
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  white-space: nowrap;
+}
+.radar-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.radar-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.radar-filter label {
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.radar-filter select {
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.radar-filter select:hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+.radar-filter select:focus-visible,
+.radar-filters .link-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+/* native option popups: explicit colours, they do not inherit the transparent background */
+.radar-filter select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+.radar-filters-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 16px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+.radar-filters .link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.radar-filters .link-btn:hover {
+  text-decoration: none;
+}
+
+/* entries (blips and legend) that do not match the filters: dimmed, not clickable, never moved */
+.filtered-out {
+  opacity: 0.15;
+  pointer-events: none;
+}
+
 /* theme switch button, fixed at the bottom left of the viewport (below the modals) */
 .theme-toggle-btn {
   position: fixed;

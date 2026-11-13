@@ -12,6 +12,7 @@
 <script src="radar.js"></script>
 <script src="technology-mapping.js"></script>
 <script src="technology-validation.js"></script>
+<script src="technology-filter.js"></script>
 <script src="theme-switcher.js"></script>
 <script>
 // set the saved theme before the first paint, to avoid a flash of the wrong look
@@ -28,6 +29,22 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 
 <div class="radar-container">
 <svg id="radar"></svg>
+<div id="radar-filters" class="radar-filters">
+<div class="radar-filters-row">
+<div class="radar-filter">
+<label for="filter-type">Type</label>
+<select id="filter-type"></select>
+</div>
+<div class="radar-filter">
+<label for="filter-status">Status</label>
+<select id="filter-status"></select>
+</div>
+</div>
+<div class="radar-filters-meta">
+<span id="filter-counter" aria-live="polite"></span>
+<button type="button" id="filter-reset" class="link-btn" hidden>Reset</button>
+</div>
+</div>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
 </div>
 
@@ -134,10 +151,95 @@ function render() {
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
+      // dimmed (filtered-out) entries do nothing, e.g. when activated from the keyboard
+      if (!isEntryMatching(entry)) return;
       showDetails(entry);
     }
   });
+  // the radar was redrawn from scratch: dim the non-matching entries again
+  applyFilters();
 }
+
+// ---- Type / Status filters ----
+// Filtering never redraws the radar (that would restart the force simulation
+// and move the blips): it only toggles a class on the blips and legend entries
+// that were already drawn.
+var filters = TechnologyFilter.parseFilters(window.location.search);
+var matchingIds = {};
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterCounter = document.getElementById('filter-counter');
+var filterReset = document.getElementById('filter-reset');
+
+function fillFilterSelect(select, allLabel, values) {
+  var all = document.createElement('option');
+  all.value = TechnologyFilter.ALL;
+  all.textContent = allLabel;
+  select.appendChild(all);
+  values.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', TechnologyFilter.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', TechnologyFilter.STATUS_OPTIONS);
+filterType.value = filters.type;
+filterStatus.value = filters.status;
+
+function isEntryMatching(entry) {
+  return matchingIds[entry.id] === true;
+}
+
+function applyFilters() {
+  matchingIds = {};
+  technologies.forEach(function(tech) {
+    if (TechnologyFilter.matches(tech, filters)) {
+      matchingIds[String(tech.number)] = true;
+    }
+  });
+  d3.selectAll('#radar .blip, #radar .legend-entry')
+    .classed('filtered-out', function(d) { return !isEntryMatching(d); });
+  // dimmed legend entries are links: keep them out of the keyboard flow
+  d3.selectAll('#radar a.legend-entry').each(function(d) {
+    if (isEntryMatching(d)) {
+      this.removeAttribute('tabindex');
+      this.removeAttribute('aria-disabled');
+    } else {
+      this.setAttribute('tabindex', '-1');
+      this.setAttribute('aria-disabled', 'true');
+    }
+  });
+  filterCounter.textContent = TechnologyFilter.counterText(
+    TechnologyFilter.countMatching(technologies, filters), technologies.length);
+  filterReset.hidden = !TechnologyFilter.isActive(filters);
+}
+
+function updateFilters() {
+  filters = {
+    type: filterType.value,
+    status: filterStatus.value
+  };
+  try {
+    window.history.replaceState(null, '',
+      window.location.pathname + TechnologyFilter.buildSearch(filters, window.location.search) + window.location.hash);
+  } catch (e) {
+    // the URL cannot be changed in some sandboxed contexts: the filters still apply
+  }
+  // before the data is loaded, the first render applies the filters
+  if (configData) applyFilters();
+}
+
+filterType.addEventListener('change', updateFilters);
+filterStatus.addEventListener('change', updateFilters);
+filterReset.addEventListener('click', function() {
+  filterType.value = TechnologyFilter.ALL;
+  filterStatus.value = TechnologyFilter.ALL;
+  updateFilters();
+  filterType.focus();
+});
 
 // ---- Theme switch ----
 var themeToggle = document.getElementById('theme-toggle');

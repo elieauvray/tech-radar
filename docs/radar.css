@@ -42,6 +42,84 @@ li {
   background: #f2f2f2;
 }
 
+/* Type and Status filters: centred on the 1450px wide svg, the dropdowns in
+   the title band (about y=44 to 95), the counter and Reset link just below it */
+.radar-filters {
+  position: absolute;
+  top: 53px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.radar-filters-row {
+  display: flex;
+  gap: 12px;
+}
+.radar-filter-select {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  color-scheme: dark;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+}
+.radar-filter-select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+.radar-filter-select:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+.radar-filter-select:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.radar-filters-status {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 8px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.radar-filters-summary {
+  margin: 0;
+  color: #333;
+}
+.radar-filters-reset {
+  color: #e9041e;
+}
+.radar-filters-reset:focus-visible {
+  outline: 2px solid #e9041e;
+  outline-offset: 2px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* blips and legend entries that do not match the filters: not removed, so
+   nothing moves; pointer-events is inherited, so no click, hover or bubble */
+.dimmed {
+  opacity: 0.15;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
 /* theme switch button, fixed at the bottom left of the viewport (below the modals) */
 .theme-toggle-btn {
   position: fixed;

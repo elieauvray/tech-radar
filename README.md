@@ -148,6 +148,23 @@ its name to `THEMES` and its options to `RADAR_OPTIONS` in
 `docs/theme-switcher.js`, then add a stylesheet scoped by its `data-theme`
 value. The Upsun palette is an approximation of upsun.com.
 
+### Type and Status filters
+
+Two dropdowns in the page header, Type (All types, Datastores, Data Management,
+Infrastructure, Language) and Status (All statuses, ADOPT, TRIAL, ASSESS, HOLD),
+filter the radar. They combine with AND and work on the technologies already
+loaded from `GET /api/technologies`: no page reload, no extra API call. Blips and
+legend entries that do not match are dimmed to 15% opacity and cannot be clicked,
+but they are not removed, so nothing moves. A counter ("Showing N of M
+technologies") sits below the dropdowns, and a "Reset" link appears while a
+filter is active.
+
+The filters are kept in the URL, for example `/?type=Datastores&status=HOLD`.
+Opening such a URL applies the filters; values that are not exact, known names
+are ignored. Other query parameters are left untouched. The logic (option lists,
+URL parsing and building, matching) is in `docs/radar-filters.js` and is tested
+in `test/radar-filters.test.js`.
+
 ## Deployment
 
 ### Deploying on Upsun

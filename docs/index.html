@@ -13,6 +13,7 @@
 <script src="technology-mapping.js"></script>
 <script src="technology-validation.js"></script>
 <script src="theme-switcher.js"></script>
+<script src="radar-filters.js"></script>
 <script>
 // set the saved theme before the first paint, to avoid a flash of the wrong look
 document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
@@ -29,6 +30,18 @@ document.documentElement.setAttribute('data-theme', ThemeSwitcher.loadTheme());
 <div class="radar-container">
 <svg id="radar"></svg>
 <button type="button" id="add-technology" class="add-technology-btn">Add a technology</button>
+<div class="radar-filters">
+<div class="radar-filters-row">
+<label for="filter-type" class="visually-hidden">Type</label>
+<select id="filter-type" class="radar-filter-select"></select>
+<label for="filter-status" class="visually-hidden">Status</label>
+<select id="filter-status" class="radar-filter-select"></select>
+</div>
+<div class="radar-filters-status">
+<p id="filter-summary" class="radar-filters-summary" role="status" aria-live="polite" hidden></p>
+<a id="filter-reset" class="radar-filters-reset" href="#" hidden>Reset</a>
+</div>
+</div>
 </div>
 
 <div id="add-modal" class="modal-backdrop" hidden>
@@ -134,9 +147,12 @@ function render() {
     // rebuilt on every render: radar_visualization mutates its entries
     entries: technologies.map(TechnologyMapping.toRadarEntry),
     on_entry_click: function(entry) {
+      // dimmed entries do nothing, whatever way they were activated
+      if (!entryMatchesFilters(entry)) return;
       showDetails(entry);
     }
   });
+  applyFilters();
 }
 
 // ---- Theme switch ----
@@ -172,6 +188,99 @@ function loadAndRender() {
     console.log('Error loading radar data', err);
   });
 }
+
+// ---- Type and Status filters ----
+var filterType = document.getElementById('filter-type');
+var filterStatus = document.getElementById('filter-status');
+var filterSummary = document.getElementById('filter-summary');
+var filterReset = document.getElementById('filter-reset');
+// read from the URL before the data is loaded, so a shared link restores the view
+var filters = RadarFilters.parseFilters(location.search);
+
+function fillFilterSelect(select, allLabel, values) {
+  var all = document.createElement('option');
+  all.value = RadarFilters.ALL;
+  all.textContent = allLabel;
+  select.appendChild(all);
+  values.forEach(function(value) {
+    var option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillFilterSelect(filterType, 'All types', RadarFilters.TYPE_OPTIONS);
+fillFilterSelect(filterStatus, 'All statuses', RadarFilters.STATUS_OPTIONS);
+
+function syncFilterSelects() {
+  filterType.value = filters.type;
+  filterStatus.value = filters.status;
+}
+
+function findTechnology(id) {
+  for (var i = 0; i < technologies.length; i++) {
+    if (String(technologies[i].number) === id) return technologies[i];
+  }
+  return null;
+}
+
+function entryMatchesFilters(entry) {
+  var row = findTechnology(entry.id);
+  return !!row && RadarFilters.matches(row, filters);
+}
+
+// dims the blips and legend entries that do not match; the drawing is
+// neither redrawn nor moved, and no data is fetched again
+function applyFilters() {
+  var byId = {};
+  technologies.forEach(function(row) {
+    byId[String(row.number)] = row;
+  });
+  function dimmed(d) {
+    var row = byId[d.id];
+    return !row || !RadarFilters.matches(row, filters);
+  }
+  d3.selectAll('#radar .blip').classed('dimmed', dimmed);
+  d3.selectAll('#radar .legend-entry')
+    .classed('dimmed', dimmed)
+    // a dimmed legend entry must not be reachable with the keyboard either
+    .attr('tabindex', function(d) { return dimmed(d) ? '-1' : null; })
+    .attr('aria-disabled', function(d) { return dimmed(d) ? 'true' : null; });
+
+  filterSummary.textContent = RadarFilters.summary(
+    RadarFilters.countMatching(technologies, filters), technologies.length);
+  filterSummary.hidden = false;
+  filterReset.hidden = !RadarFilters.isActive(filters);
+}
+
+function updateFilterUrl() {
+  var search = RadarFilters.buildSearch(location.search, filters);
+  try {
+    history.replaceState(null, '', location.pathname + search + location.hash);
+  } catch (err) {
+    console.log('Could not update the URL', err);
+  }
+}
+
+function onFilterChange() {
+  filters = RadarFilters.normalizeFilters({ type: filterType.value, status: filterStatus.value });
+  updateFilterUrl();
+  applyFilters();
+}
+
+filterType.addEventListener('change', onFilterChange);
+filterStatus.addEventListener('change', onFilterChange);
+filterReset.addEventListener('click', function(event) {
+  event.preventDefault();
+  filters = RadarFilters.normalizeFilters({});
+  syncFilterSelects();
+  updateFilterUrl();
+  applyFilters();
+  filterType.focus();
+});
+
+syncFilterSelects();
 
 // ---- Add a technology ----
 var addButton = document.getElementById('add-technology');
